@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "ml.mind-spark.ru"
+version = "0.1.0"
+description = ""
+authors = ["Vladimir Tsyganov <tsyganov.vv0228@gmail.com>"]
+readme = "README.md"
+
+packages = [
+    {include = "app"}
+]
+
+[tool.poetry.dependencies]
+python = "==3.11.14"
+fastapi = ">=0.104.0"
+uvicorn = {extras = ["standard"], version = ">=0.24.0"}
+sqlalchemy = ">=2.0.0"
+asyncpg = ">=0.29.0"
+pydantic = ">=2.0.0"
+pydantic-settings = ">=2.0.0"
+python-jose = {extras = ["cryptography"], version = ">=3.3.0"}
+passlib = {extras = ["bcrypt"], version = ">=1.7.4"}
+python-multipart = ">=0.0.6"
+alembic = ">=1.12.0"
+redis = ">=5.0.0"
+python-dotenv = ">=1.0.0"
+httpx = ">=0.25.0"
+torch = {version = ">=2.2.0"}
+transformers = ">=4.36.0"
+sentencepiece = ">=0.2.0"
+accelerate = ">=0.25.0"
+sentence-transformers = ">=2.2.0"
+numpy = ">=1.24.0"
+protobuf = ">=4.25.0"
+psutil = ">=5.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry-core.build_meta"

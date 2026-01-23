@@ -1,0 +1,79 @@
+[tool.poetry]
+name = "api.mind-spark-ru"
+version = "0.1.0"
+description = ""
+authors = ["Vladimir Tsyganov <tsyganov.vv0228@gmail.com>"]
+readme = "README.md"
+
+packages = [
+    {include = "app"}
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+fastapi = ">=0.104.0"
+uvicorn = {extras = ["standard"], version = ">=0.24.0"}
+sqlalchemy = ">=2.0.0"
+asyncpg = ">=0.29.0"
+pydantic = {extras = ["email"], version = "^2.12.5"}
+pydantic-settings = ">=2.0.0"
+python-jose = {extras = ["cryptography"], version = ">=3.3.0"}
+passlib = "1.7.4"
+python-multipart = ">=0.0.6"
+alembic = ">=1.12.0"
+redis = ">=5.0.0"
+python-dotenv = ">=1.0.0"
+httpx = ">=0.25.0"
+greenlet = "^3.3.0"
+bcrypt = "4.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.4.0"
+pytest-asyncio = ">=0.21.0"
+pytest-cov = ">=4.1.0"
+black = ">=23.0.0"
+isort = ">=5.12.0"
+mypy = ">=1.6.0"
+pre-commit = ">=3.5.0"
+factory-boy = ">=3.3.0"
+ruff = "^0.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry-core.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+# Включаем ВСЕ, но с исключением конфликтующих правил
+select = ["ALL"]
+
+# Исключаем только то, что действительно мешает
+ignore = [
+    "D203",  # Конфликт с D211
+    "D212",  # Конфликт с D213  
+    "D401",  # Первая строка docstring должна быть в повелительном наклонении
+    "D407",  # Отсутствие описания вызовов в docstring
+    "D413",  # Отсутствие пустой строки после раздела docstring
+    "E501",  # Длина строки (форматтер позаботится)
+    "COM812", # Конфликт с форматированием
+    "ISC001", # Конфликт с форматированием
+    "INP001", # Имплицитные namespace пакеты (alembic)
+    "S104",   # Привязка ко всем интерфейсам (оставьте для прода)
+    "TRY003", # Длинные сообщения исключений (можно позже)
+    "B008",   # FastAPI Depends в аргументах - это нормально для FastAPI!
+]
+
+[tool.ruff.lint]
+# Настройка правил для лучшего автофикса
+flake8-errmsg = { max-string-length = 80 }
+
+# Настройка pydocstyle (docstrings)
+[tool.ruff.lint.pydocstyle]
+convention = "google"  # или "numpy", "pep257"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+

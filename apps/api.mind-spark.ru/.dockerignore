@@ -1,0 +1,136 @@
+# Git files and directories
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# Environment variables and virtual environments
+.env
+.env.*
+!.env.example  # Keep example env file
+.venv/
+venv/
+env/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Test and coverage files
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation
+docs/_build/
+site/
+
+# Logs
+*.log
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3
+
+# Docker development files
+docker-compose.override.yml  # Usually contains dev-specific config
+
+# Operating system files
+.DS_Store
+.dockerignore
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+
+# Media and static files (if not needed in container)
+/media/
+/static/uploads/
+/uploads/
+
+# Configuration files (except production)
+config/development.yaml
+config/staging.yaml
+
+# Local migration files (keep structure, exclude generated migrations)
+alembic/versions/*.py
+!alembic/versions/__init__.py
+
+# Development requirements
+requirements_dev.txt
+dev-requirements.txt
+
+# Poetry lock file (if using pip install instead)
+poetry.lock
+
+# Local secrets
+secrets.yaml
+secrets.yml
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.bak
+*.backup
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# VS Code workspace
+*.code-workspace
+
+# PyCharm workspace
+*.iws
+
+# Coverage reports
+coverage/
+
+# MyPy cache
+.mypy_cache/
+
+# Type stubs
+.pytype/
