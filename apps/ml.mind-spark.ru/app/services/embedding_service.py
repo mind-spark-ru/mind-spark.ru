@@ -5,7 +5,7 @@ from transformers import AutoModel, AutoTokenizer
 from app.core.config import settings
 
 
-class NeuralService:
+class EmbeddingService:
     def __init__(self, model_name: str) -> None:
         self.model_name = model_name
         self.model = None
@@ -44,4 +44,4 @@ class NeuralService:
         return embedding.tolist()
 
 
-neuro_service = NeuralService(settings.MODEL_NAME)
+embedding_service = EmbeddingService(settings.EMBEDDING_MODEL)

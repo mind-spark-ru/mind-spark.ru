@@ -2,8 +2,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    # Database
+
     MODEL_NAME: str
+    EMBEDDING_MODEL: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

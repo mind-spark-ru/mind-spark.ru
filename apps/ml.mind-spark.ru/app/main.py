@@ -3,15 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api import router
-from app.services.neural_service import neuro_service
+from app.services.embedding_service import embedding_service
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    neuro_service.load_model()
+    embedding_service.load_model()
     yield
-    neuro_service.model = None
-    neuro_service.tokenizer = None
+    embedding_service.model = None
+    embedding_service.tokenizer = None
 
 
 app = FastAPI(
