@@ -3,15 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api import router
-from app.services.embedding_service import embedding_service
+from app.services.neural_service import neural_service
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    embedding_service.load_model()
+    neural_service.load()
     yield
-    embedding_service.model = None
-    embedding_service.tokenizer = None
+    neural_service.llm = None
 
 
 app = FastAPI(
@@ -21,6 +20,7 @@ app = FastAPI(
 )
 
 app.include_router(router)
+
 
 if __name__ == "__main__":
     import uvicorn

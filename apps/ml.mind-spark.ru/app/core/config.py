@@ -1,10 +1,18 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class Settings(BaseSettings):
 
     MODEL_NAME: str
-    EMBEDDING_MODEL: str
+    MODELS_PATH: str
+
+    @property
+    def MODEL_PATH(self) -> str:
+        return f"{BASE_DIR}/{self.MODELS_PATH}/{self.MODEL_NAME}.gguf"
 
     model_config = SettingsConfigDict(
         env_file=".env",
