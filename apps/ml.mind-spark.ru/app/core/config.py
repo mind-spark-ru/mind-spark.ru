@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     MODELS_PATH: str
 
     @property
-    def MODEL_PATH(self) -> str:
+    def model_path(self) -> str:
         return f"{BASE_DIR}/{self.MODELS_PATH}/{self.MODEL_NAME}.gguf"
 
     model_config = SettingsConfigDict(

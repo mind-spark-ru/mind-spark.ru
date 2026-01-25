@@ -11,7 +11,7 @@ class NeuralService:
 
     def load(self) -> None:
         self.llm = Llama(
-            model_path=settings.MODEL_PATH,
+            model_path=settings.model_path,
             n_ctx=4096,
             n_threads=8,
             n_batch=512,
@@ -23,37 +23,29 @@ class NeuralService:
         )
 
     def chat(self, user_input: str) -> str:
-        prompt =  f"""{self.system_prompt}
+        prompt =  f"""
+        {self.system_prompt}
 
-                ПОЛЬЗОВАТЕЛЬ: {user_input}
+        ПОЛЬЗОВАТЕЛЬ: {user_input}
 
-                COACH MINDSHARK:
-                """
-        output = self.llm(
+        ОТВЕТ COACH MINDSHARK:
+        """
+        stream = self.llm(
         prompt,
-        max_tokens=256,
+        max_tokens=512,
         temperature=0.7,
         top_p=0.95,
         repeat_penalty=1.1,
-        stop=["ПОЛЬЗОВАТЕЛЬ:", "USER:", "System:"],
-        stream=False,
+        stop=["ПОЛЬЗОВАТЕЛЬ:", "ОТВЕТ COACH MINDSHARK:"],
+        stream=True,
         )
-        response = output['choices'][0]['text'].strip()
-        return self._clean_response(response)
-    
+        for output in stream:
+            if output.get("choices"):
+                token = output["choices"][0]["text"]
+                if token:
+                    yield token
+
     def _clean_response(self, text: str) -> str:
-        """Очистка ответа от артефактов"""
-        lines = text.split('\n')
-        cleaned_lines = []
-        for line in lines:
-            if not line.startswith('COACH MINDSHARK:') and not line.startswith('Ты — Coach MindSpark'):
-                cleaned_lines.append(line)
-        
-        response = '\n'.join(cleaned_lines).strip()
-        
-        while '\n\n\n' in response:
-            response = response.replace('\n\n\n', '\n\n')
-            
-        return response
+        return text
 
 neural_service = NeuralService()
