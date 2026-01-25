@@ -1,5 +1,6 @@
 {
   "expo": {
+    "fonts": ["./assets/fonts/Montserrat-Light.ttf"],
     "name": "react-native.mindspark.ru",
     "slug": "react-native.mindspark.ru",
     "version": "1.0.0",
@@ -24,6 +25,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
