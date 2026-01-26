@@ -8,18 +8,16 @@ import {
   ImageBackground,
 } from "react-native";
 import { useFonts } from 'expo-font';
-import Logotype from './assets/images/Logotype.js';
+import Logotype from '@assets/images/Logotype.js';
+import { useAppFonts } from '@/hooks/useAppFonts';
 
 
-export default function Main({ navigation }) {
-  const [fontsLoaded] = useFonts({
-    'Montserrat-SemiBold': require('./assets/fonts/Montserrat-SemiBold.ttf'),
-    'Montserrat-Regular': require('./assets/fonts/Montserrat-Regular.ttf'),
-  });
+export default function Profile({ navigation }) {
+  const { fontsLoaded } = useAppFonts();
 
   return (
     <ImageBackground
-      source={require('./assets/images/Main_screen.png')}
+      source={require('@assets/images/Main_screen.png')}
       style={styles.background}
     >
 
@@ -28,31 +26,6 @@ export default function Main({ navigation }) {
           <Logotype />
           <Text style={styles.tagline}>INTELLIGENCE IN EVERY STEP</Text>
         </View>
-
-        <TouchableOpacity
-            style={styles.signUpButton}
-            onPress={() => navigation.navigate("Reg")}
-        >
-          <Text style={styles.signUpText}>SIGN UP</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.socialButton}>
-          <Image source={require('./assets/images/browsers/Yandex.png')} style={styles.socialIcon} />
-          <Text style={styles.socialText}>Continue with Yandex</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.socialButton}>
-          <Image source={require('./assets/images/browsers/Google.png')} style={styles.socialIcon} />
-          <Text style={styles.socialText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-            style={styles.loginLink}
-            onPress={() => navigation.navigate("Login")}
-        >
-          <Text style={styles.loginText}>LOG IN</Text>
-        </TouchableOpacity>
-
         <StatusBar style="light" />
       </View>
     </ImageBackground>
