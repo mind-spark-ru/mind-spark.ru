@@ -1,47 +1,51 @@
-import numpy as np
-import torch
-from transformers import AutoModel, AutoTokenizer
+from llama_cpp import Llama
 
 from app.core.config import settings
+from app.core.prompts import prompts
 
 
 class NeuralService:
-    def __init__(self, model_name: str) -> None:
-        self.model_name = model_name
-        self.model = None
-        self.tokenizer = None
-        self.device = None
+    def __init__(self) -> None:
+        self.llm = None
+        self.system_prompt = prompts.system_prompt
 
-    def load_model(self) -> None:
-        try:
-            if torch.backends.mps.is_available():
-                self.device = torch.device("mps")
-            else:
-                self.device = torch.device("cpu")
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModel.from_pretrained(self.model_name)
-            self.model.to(self.device)
-            self.model.eval()
-        except Exception as e:
-            raise ValueError(e)
+    def load(self) -> None:
+        self.llm = Llama(
+            model_path=settings.model_path,
+            n_ctx=4096,
+            n_threads=8,
+            n_batch=512,
+            n_gpu_layers=0,
+            use_mmap=True,
+            use_mlock=True,
+            vocab_only=False,
+            verbose=False,
+        )
 
-    def get_embedding(self, text: str) -> list[np.ndarray]:
-        if self.model is None:
-            self.load_model()
-        inputs = self.tokenizer(
-            text,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-        ).to(self.device)
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            embedding = outputs.last_hidden_state.mean(dim=1).squeeze()
-        return embedding.cpu().numpy()
+    def chat(self, user_input: str) -> str:
+        prompt =  f"""
+        {self.system_prompt}
 
-    def get_embedding_list(self, text: str) -> list[float]:
-        embedding = self.get_embedding(text)
-        return embedding.tolist()
+        ПОЛЬЗОВАТЕЛЬ: {user_input}
 
+        ОТВЕТ COACH MINDSHARK:
+        """
+        stream = self.llm(
+        prompt,
+        max_tokens=512,
+        temperature=0.7,
+        top_p=0.95,
+        repeat_penalty=1.1,
+        stop=["ПОЛЬЗОВАТЕЛЬ:", "ОТВЕТ COACH MINDSHARK:"],
+        stream=True,
+        )
+        for output in stream:
+            if output.get("choices"):
+                token = output["choices"][0]["text"]
+                if token:
+                    yield token
 
-neuro_service = NeuralService(settings.MODEL_NAME)
+    def _clean_response(self, text: str) -> str:
+        return text
+
+neural_service = NeuralService()
