@@ -10,24 +10,68 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from "react-native";
 import { useFonts } from "expo-font";
 import { useState } from "react";
-import EyeOpen from "./assets/images/Password/Eye-open.svg";
-import EyeClosed from "./assets/images/Password/Eye-close.svg";
-import LogoSpark from "./assets/images/LogoSpark.svg";
-import BackButton from "./assets/images/BackButton.svg";
-
+import EyeOpen from "@assets/images/Password/Eye-open.svg";
+import EyeClosed from "@assets/images/Password/Eye-close.svg";
+import LogoSpark from "@assets/images/LogoSpark.svg";
+import BackButton from "@assets/images/BackButton.svg";
+import { useAppFonts } from '@/hooks/useAppFonts';
+import { API_URL } from "@./config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login({ navigation }) {
-    const [fontsLoaded] = useFonts({
-        "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
-        "Montserrat-Regular": require("./assets/fonts/Montserrat-Regular.ttf"),
-    });
+    const { fontsLoaded } = useAppFonts();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     if (!fontsLoaded) return null;
 
     const [passwordVisible, setPasswordVisible] = useState(false);
+
+    const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(API_URL + "/v1/sessions/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const token =
+          response.headers.get("X-Auth-Token") ||
+          response.headers.get("Authorization")?.replace("Bearer ", "") ||
+          data.token;
+        if (token) {
+          await AsyncStorage.setItem("auth_token", token);
+          await AsyncStorage.setItem("user_email", email);
+          navigation.navigate("Profile");
+        } else {
+          Alert.alert("Error", "Token not found");
+        }
+      } else {
+        Alert.alert("Error", data.detail || "Incorrect login or password");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Serverserver is unavailable");
+    } finally {
+      setLoading(false);
+    }
+    }
 
     return (
         <View style={styles.container}>
@@ -57,6 +101,9 @@ export default function Login({ navigation }) {
                                 style={styles.input}
                                 placeholder="E-mail"
                                 placeholderTextColor="#7A7A7A"
+                                value={email}
+                                onChangeText={setEmail}
+                                editable={!loading}
                             />
                             <View style={styles.passwordContainer}>
                                 <TextInput
@@ -64,6 +111,9 @@ export default function Login({ navigation }) {
                                     placeholder="Password"
                                     placeholderTextColor="#7A7A7A"
                                     secureTextEntry={!passwordVisible}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    editable={!loading}
                                 />
 
                                 <TouchableOpacity
@@ -73,7 +123,10 @@ export default function Login({ navigation }) {
                                 </TouchableOpacity>
                             </View>
 
-                            <TouchableOpacity style={styles.loginButton}>
+                            <TouchableOpacity 
+                            style={styles.loginButton}
+                            onPress={handleLogin}
+                            >
                                 <Text style={styles.loginText}>LOG IN</Text>
                             </TouchableOpacity>
 

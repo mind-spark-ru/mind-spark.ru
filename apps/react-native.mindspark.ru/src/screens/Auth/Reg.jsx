@@ -13,16 +13,14 @@ import {
 } from "react-native";
 import { useFonts } from "expo-font";
 import { useState } from "react";
-import EyeOpen from "./assets/images/Password/Eye-open.svg";
-import EyeClosed from "./assets/images/Password/Eye-close.svg";
-import LogoSpark from "./assets/images/LogoSpark.svg";
-import BackButton from "./assets/images/BackButton.svg";
+import EyeOpen from "@assets/images/Password/Eye-open.svg";
+import EyeClosed from "@assets/images/Password/Eye-close.svg";
+import LogoSpark from "@assets/images/LogoSpark.svg";
+import BackButton from "@assets/images/BackButton.svg";
+import { useAppFonts } from '@/hooks/useAppFonts';
 
 export default function Reg({ navigation }) {
-    const [fontsLoaded] = useFonts({
-        "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
-        "Montserrat-Regular": require("./assets/fonts/Montserrat-Regular.ttf"),
-    });
+    const { fontsLoaded } = useAppFonts();
 
     if (!fontsLoaded) return null;
 

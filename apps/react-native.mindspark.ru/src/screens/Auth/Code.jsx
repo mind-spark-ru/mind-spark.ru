@@ -9,14 +9,12 @@ import {
     TouchableWithoutFeedback,
 } from "react-native";
 import { useFonts } from "expo-font";
-import LogoSpark from "./assets/images/LogoSpark.svg";
-import BackButton from "./assets/images/BackButton.svg";
+import LogoSpark from "@assets/images/LogoSpark.svg";
+import BackButton from "@assets/images/BackButton.svg";
+import { useAppFonts } from '@/hooks/useAppFonts';
 
 export default function Code({ navigation }) {
-    const [fontsLoaded] = useFonts({
-        "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
-        "Montserrat-Regular": require("./assets/fonts/Montserrat-Regular.ttf"),
-    });
+    const { fontsLoaded } = useAppFonts();
 
     const [code, setCode] = useState(["", "", "", "", ""]);
     const inputs = useRef([]);
