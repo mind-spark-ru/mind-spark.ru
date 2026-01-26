@@ -1,26 +1,31 @@
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
-from app.services.neural_service import neuro_service
+from app.core.config import settings
+from app.services.neural_service import neural_service
 
 router = APIRouter()
 
 
-@router.get("/health")
-async def health():
-    return {
-        "status": "healthy",
-        "model_loaded": neuro_service.model is not None,
-        "model_name": neuro_service.model_name,
-    }
-
-
 @router.get("/")
-async def main():
+async def root():
     return {
-        "success": True,
+        "message": "Neural Network API",
     }
 
+@router.get("/health")
+async def health_check():
+    return {
+        "status": "healthy", "model_loaded": settings.MODEL_NAME,
+    }
 
-@router.post("/embedding")
-async def embededding(text: str):
-    return neuro_service.get_embedding_list(text)
+@router.post("/predict")
+async def predict(text: str):
+    return StreamingResponse(
+        neural_service.chat(text),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
