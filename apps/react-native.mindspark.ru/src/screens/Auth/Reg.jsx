@@ -10,6 +10,7 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from "react-native";
 import { useFonts } from "expo-font";
 import { useState } from "react";
@@ -18,13 +19,60 @@ import EyeClosed from "@assets/images/Password/Eye-close.svg";
 import LogoSpark from "@assets/images/LogoSpark.svg";
 import BackButton from "@assets/images/BackButton.svg";
 import { useAppFonts } from '@/hooks/useAppFonts';
+import { API_URL } from "@./config";
 
 export default function Reg({ navigation }) {
     const { fontsLoaded } = useAppFonts();
+    const [username, setUserName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [repeat_password, setRepeat_Password] = useState("");
+    const [loading, setLoading] = useState(false);
 
     if (!fontsLoaded) return null;
 
     const [passwordVisible, setPasswordVisible] = useState(false);
+
+    const handleReg = async () => {
+    if (!email || !password || !repeat_password || !username) {
+      Alert.alert("Error", "Fill in all fields");
+      return;
+    }
+
+    if (password != repeat_password) {
+      Alert.alert("Error", "Password's fields are different");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(API_URL + "/v1/users/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigation.navigate("Code")
+      } else {
+        if (response.status == 400){
+          Alert.alert("Error", data.detail || "Incorrect registration data");
+        }
+        if (response.status == 422){
+          Alert.alert("Error", data.detail[0].ctx.reason || "Incorrect registration data");
+        }
+      }
+    } catch (error) {
+        Alert.alert("Error", "Server is unavailable");
+    } finally {
+      setLoading(false);
+    }
+    }
 
     return (
         <View style={styles.container}>
@@ -53,16 +101,17 @@ export default function Reg({ navigation }) {
                                 style={styles.input}
                                 placeholder="Name"
                                 placeholderTextColor="#7A7A7A"
+                                value={username}
+                                onChangeText={setUserName}
+                                editable={!loading}
                             />
                             <TextInput
                                 style={styles.input}
                                 placeholder="E-mail"
                                 placeholderTextColor="#7A7A7A"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Phone number"
-                                placeholderTextColor="#7A7A7A"
+                                value={email}
+                                onChangeText={setEmail}
+                                editable={!loading}
                             />
                             <View style={styles.passwordContainer}>
                                 <TextInput
@@ -70,6 +119,9 @@ export default function Reg({ navigation }) {
                                     placeholder="Password"
                                     placeholderTextColor="#7A7A7A"
                                     secureTextEntry={!passwordVisible}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    editable={!loading}
                                 />
 
                                 <TouchableOpacity
@@ -84,6 +136,9 @@ export default function Reg({ navigation }) {
                                     placeholder="Repeat password"
                                     placeholderTextColor="#7A7A7A"
                                     secureTextEntry={!passwordVisible}
+                                    value={repeat_password}
+                                    onChangeText={setRepeat_Password}
+                                    editable={!loading}
                                 />
 
                                 <TouchableOpacity
@@ -95,7 +150,7 @@ export default function Reg({ navigation }) {
 
                             <TouchableOpacity
                                 style={styles.signUpButton}
-                                onPress={() => navigation.navigate("Code")}
+                                onPress={ handleReg }
                             >
                                 <Text style={styles.signUpText}>SIGN UP</Text>
                             </TouchableOpacity>

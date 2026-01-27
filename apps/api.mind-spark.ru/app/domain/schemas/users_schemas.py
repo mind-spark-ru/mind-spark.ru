@@ -12,7 +12,7 @@ class UserBase(Base):
 
 
 class UserCreate(UserBase):
-    password: str | None
+    password: str 
 
 
 class UserUpdate(UserBase):
@@ -34,7 +34,6 @@ class UserResponse(UserBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime | None = None
-    fullname: str
 
     class Config:
         from_attributes = True
