@@ -10,7 +10,6 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Alert,
 } from "react-native";
 import { useFonts } from "expo-font";
 import { useState } from "react";
@@ -18,8 +17,10 @@ import EyeOpen from "@assets/images/Password/Eye-open.svg";
 import EyeClosed from "@assets/images/Password/Eye-close.svg";
 import LogoSpark from "@assets/images/LogoSpark.svg";
 import BackButton from "@assets/images/BackButton.svg";
+import CustomAlert from "@components/CustomAlert.jsx";
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { API_URL } from "@./config";
+
 
 export default function Reg({ navigation }) {
     const { fontsLoaded } = useAppFonts();
@@ -28,50 +29,67 @@ export default function Reg({ navigation }) {
     const [password, setPassword] = useState("");
     const [repeat_password, setRepeat_Password] = useState("");
     const [loading, setLoading] = useState(false);
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
 
     if (!fontsLoaded) return null;
+
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setAlertVisible(true);
+    };
 
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const handleReg = async () => {
-    if (!email || !password || !repeat_password || !username) {
-      Alert.alert("Error", "Fill in all fields");
-      return;
-    }
-
-    if (password != repeat_password) {
-      Alert.alert("Error", "Password's fields are different");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch(API_URL + "/v1/users/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, username, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        navigation.navigate("Code")
-      } else {
-        if (response.status == 400){
-          Alert.alert("Error", data.detail || "Incorrect registration data");
+        if (!email || !password || !repeat_password || !username) {
+            showAlert("Please fill in all fields");
+            return;
         }
-        if (response.status == 422){
-          Alert.alert("Error", data.detail[0].ctx.reason || "Incorrect registration data");
+
+        if (!email.includes("@")) {
+            showAlert("An email address must have an @-sign");
+            return;
         }
-      }
-    } catch (error) {
-        Alert.alert("Error", "Server is unavailable");
-    } finally {
-      setLoading(false);
-    }
+
+        if (password.length < 8) {
+            showAlert("Password must be at least 8 characters long");
+            return;
+        }
+
+        if (password !== repeat_password) {
+            showAlert("Passwords do not match");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(API_URL + "/v1/users/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, username, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                navigation.navigate("Code")
+            } else {
+                if (response.status == 400) {
+                    showAlert(data.detail || "Incorrect registration data");
+                }
+                if (response.status == 422) {
+                    showAlert(data.detail[0].ctx.reason || "Incorrect registration data");
+                }
+            }
+        } catch (error) {
+            showAlert("Server is unavailable");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -150,7 +168,7 @@ export default function Reg({ navigation }) {
 
                             <TouchableOpacity
                                 style={styles.signUpButton}
-                                onPress={ handleReg }
+                                onPress={handleReg}
                             >
                                 <Text style={styles.signUpText}>SIGN UP</Text>
                             </TouchableOpacity>
@@ -159,6 +177,11 @@ export default function Reg({ navigation }) {
                             <StatusBar style="light" />
                         </View>
                     </TouchableWithoutFeedback>
+                    <CustomAlert
+                        visible={alertVisible}
+                        message={alertMessage}
+                        onClose={() => setAlertVisible(false)}
+                    />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
@@ -169,16 +192,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#141414",
-        justifyContent: "center",
     },
     scrollContent: {
         flexGrow: 1,
         padding: 20,
-        justifyContent: 'center',
+        justifyContent: "center",
     },
     backButton: {
         position: "absolute",
-        top: -44,
+        top: -58,
         left: 5,
         zIndex: 20,
     },
@@ -200,7 +222,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         color: "#FBF8EF",
         marginBottom: 15,
-        marginHorizontal: 0,
         fontFamily: "Montserrat-Regular",
     },
     passwordContainer: {
@@ -218,13 +239,6 @@ const styles = StyleSheet.create({
         flex: 1,
         color: "#FBF8EF",
         fontFamily: "Montserrat-Regular",
-    },
-    eyeCloseButton: {
-        marginTop: 10,
-        paddingLeft: 10,
-    },
-    eyeOpenButton: {
-        paddingLeft: 10,
     },
     signUpButton: {
         marginTop: 20,

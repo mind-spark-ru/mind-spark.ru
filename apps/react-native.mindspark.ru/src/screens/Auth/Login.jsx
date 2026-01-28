@@ -10,7 +10,6 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Alert,
 } from "react-native";
 import { useFonts } from "expo-font";
 import { useState } from "react";
@@ -21,8 +20,14 @@ import BackButton from "@assets/images/BackButton.svg";
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { API_URL } from "@./config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomAlert from "@components/CustomAlert.jsx";
+
 
 export default function Login({ navigation }) {
+
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+
     const { fontsLoaded } = useAppFonts();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -32,45 +37,55 @@ export default function Login({ navigation }) {
 
     const [passwordVisible, setPasswordVisible] = useState(false);
 
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setAlertVisible(true);
+    };
+
     const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Fill in all fields");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch(API_URL + "/v1/sessions/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        const token =
-          response.headers.get("X-Auth-Token") ||
-          response.headers.get("Authorization")?.replace("Bearer ", "") ||
-          data.token;
-        if (token) {
-          await AsyncStorage.setItem("auth_token", token);
-          await AsyncStorage.setItem("user_email", email);
-          navigation.navigate("Profile");
-        } else {
-          Alert.alert("Error", "Token not found");
+        if (!email || !password) {
+            showAlert("Please fill in all fields");
+            return;
         }
-      } else {
-        Alert.alert("Error", data.detail || "Incorrect login or password");
-      }
-    } catch (error) {
-      Alert.alert("Error", "Serverserver is unavailable");
-    } finally {
-      setLoading(false);
-    }
+
+        if (!email.includes("@")) {
+            showAlert("An email address must have an @-sign");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(API_URL + "/v1/sessions/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const token =
+                    response.headers.get("X-Auth-Token") ||
+                    response.headers.get("Authorization")?.replace("Bearer ", "") ||
+                    data.token;
+                if (token) {
+                    await AsyncStorage.setItem("auth_token", token);
+                    await AsyncStorage.setItem("user_email", email);
+                    navigation.navigate("Profile");
+                } else {
+                    showAlert("Authorization token not found");
+                }
+            } else {
+                showAlert(data.detail || "Incorrect login or password");
+            }
+        } catch (error) {
+            showAlert("Server is unavailable. Please try again later");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -123,9 +138,9 @@ export default function Login({ navigation }) {
                                 </TouchableOpacity>
                             </View>
 
-                            <TouchableOpacity 
-                            style={styles.loginButton}
-                            onPress={handleLogin}
+                            <TouchableOpacity
+                                style={styles.loginButton}
+                                onPress={handleLogin}
                             >
                                 <Text style={styles.loginText}>LOG IN</Text>
                             </TouchableOpacity>
@@ -133,6 +148,11 @@ export default function Login({ navigation }) {
                             <StatusBar style="light" />
                         </View>
                     </TouchableWithoutFeedback>
+                    <CustomAlert
+                        visible={alertVisible}
+                        message={alertMessage}
+                        onClose={() => setAlertVisible(false)}
+                    />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
