@@ -11,3 +11,4 @@ class User(BaseModel):
     hashed_password = Column(String, nullable=False)
     fullname = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    is_verifed = Column(Boolean, default=False)
