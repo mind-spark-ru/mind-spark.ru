@@ -18,15 +18,12 @@ export default function CustomAlert({ visible, message, onClose }) {
             <View style={styles.overlay}>
                 <View style={styles.alertBox}>
                     
-                    {/* SVG иконка */}
                     <IconAlert width={44} height={44} style={styles.icon} />
 
-                    {/* Текст ошибки */}
                     <Text style={styles.message}>
                         {message}
                     </Text>
 
-                    {/* Кнопка */}
                     <TouchableOpacity
                         style={styles.button}
                         onPress={onClose}
