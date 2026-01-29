@@ -3,18 +3,26 @@ services:
     build:
       context: .
       dockerfile: db.Dockerfile
+    container_name: mindspark-db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  mailhog:
+  redis:
     build:
       context: .
-      dockerfile: smtp.Dockerfile
+      dockerfile: redis.Dockerfile
+    container_name: mindspark-redis
     ports:
-      - "1025:1025"
-      - "8025:8025"
-
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app-network
 volumes:
   postgres_data:
+  redis_data:
+networks:
+  app-network:
+    driver: bridge

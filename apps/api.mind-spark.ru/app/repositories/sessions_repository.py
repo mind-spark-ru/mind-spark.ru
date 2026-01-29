@@ -30,7 +30,7 @@ class SessionRepository:
             select(SessionModel).where(SessionModel.id == session_id),
         )
         return result.scalar_one_or_none()
-    
+
     async def get_session_by_token(self, token: str) -> SessionModel | None:
         result = await self.db.execute(
             select(SessionModel).where(SessionModel.token == token),

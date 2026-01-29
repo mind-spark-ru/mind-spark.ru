@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import router
+from app.core.redis import redis_client
 from app.db.session import Base, engine
 
 
@@ -11,8 +12,10 @@ from app.db.session import Base, engine
 async def lifespan(app=FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await redis_client.connect()
     yield
     await engine.dispose()
+    await redis_client.disconnect()
 
 
 app = FastAPI(title="api.mind-spark.ru", version="1.0.0", lifespan=lifespan)

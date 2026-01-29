@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from app.api.dependencies.services import get_session_service
@@ -39,8 +39,7 @@ async def get_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Empty token",
             )
-        user_data = await service.get_user_by_token(token)
-        return user_data
+        return await service.get_user_by_token(token)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e),

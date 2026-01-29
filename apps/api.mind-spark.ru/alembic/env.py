@@ -1,22 +1,21 @@
 import sys
 from pathlib import Path
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
+
+from alembic import context
 
 sys.path.append(str(Path(__file__).parent.parent))
 
 
 from app.domain.models import BaseModel
-from app.domain.models.session_models import SessionModel
-from app.domain.models.users_models import User
 
 target_metadata = BaseModel.metadata
 
 config = context.config
 
-def run_migrations_offline():
+def run_migrations_offline() -> None:
     context.configure(
         url=config.get_main_option("sqlalchemy.url"),
         target_metadata=target_metadata,
@@ -27,20 +26,20 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-def do_run_migrations(connection):
+def do_run_migrations(connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()
 
-async def run_migrations_online():
+async def run_migrations_online() -> None:
     connectable = AsyncEngine(
         engine_from_config(
             config.get_section(config.config_ini_section),
             prefix="sqlalchemy.",
             poolclass=pool.NullPool,
             future=True,
-        )
+        ),
     )
 
     async with connectable.connect() as connection:
