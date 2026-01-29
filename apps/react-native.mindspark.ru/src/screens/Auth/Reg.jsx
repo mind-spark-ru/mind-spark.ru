@@ -40,6 +40,33 @@ export default function Reg({ navigation }) {
     };
 
     const [passwordVisible, setPasswordVisible] = useState(false);
+    
+    const navigate_send_code = async () =>{
+        setLoading(true)
+        try {
+            const encodedEmail = encodeURIComponent(email);
+            const response = await fetch(`${API_URL}/v1/items/send_verification_code?email=${encodedEmail}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                navigation.navigate("Code")
+            }
+            else{
+                showAlert("Error sending code")
+            }
+        }catch(error){
+            showAlert("Error sending code")
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
     const handleReg = async () => {
         if (!email || !password || !repeat_password || !username) {
@@ -76,7 +103,7 @@ export default function Reg({ navigation }) {
             const data = await response.json();
 
             if (response.ok) {
-                navigation.navigate("Code")
+                navigate_send_code();
             } else {
                 if (response.status == 400) {
                     showAlert(data.detail || "Incorrect registration data");

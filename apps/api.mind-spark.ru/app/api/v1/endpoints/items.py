@@ -15,7 +15,7 @@ async def send_verification_code(
 )-> dict:
     return await mail_service.send_verification_code(email)
 
-@router.post("/verification")
+@router.get("/verification")
 async def verification_email(
     email: str,
     code: int,
