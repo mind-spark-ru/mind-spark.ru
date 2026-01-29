@@ -12,12 +12,23 @@ import { useFonts } from "expo-font";
 import LogoSpark from "@assets/images/LogoSpark.svg";
 import BackButton from "@assets/images/BackButton.svg";
 import { useAppFonts } from '@/hooks/useAppFonts';
+import CustomAlert from "@components/CustomAlert.jsx";
+import { API_URL } from "@./config";
 
-export default function Code({ navigation }) {
+export default function Code({ route, navigation }) {
+    const email = route.params?.email;
     const { fontsLoaded } = useAppFonts();
 
     const [code, setCode] = useState(["", "", "", "", ""]);
     const inputs = useRef([]);
+    const [loading, setLoading] = useState(false);
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+
+    const showAlert = (message) => {
+        setAlertMessage(message);
+        setAlertVisible(true);
+    };
 
     if (!fontsLoaded) return null;
 
@@ -38,6 +49,35 @@ export default function Code({ navigation }) {
             inputs.current[index - 1].focus();
         }
     };
+    const handleCode = async () =>{
+            const codeString = code.join('');
+            if (codeString.length !== 5) {
+                showAlert("Please enter all 5 digits");
+                return;
+            }
+            setLoading(true);
+            try {
+                const response = await fetch(`${API_URL}/v1/items/verification?email=${email}&code=${codeString}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (response.ok) {
+                    if (data.success){
+                        navigation.navigate("Profile")
+                    }
+                    else{
+                    showAlert("Incorrect code")
+                }
+            }
+            }catch(error){
+                showAlert("Error sending code")
+            }
+            finally {
+                setLoading(false);
+            }
+        }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -72,13 +112,21 @@ export default function Code({ navigation }) {
                             onKeyPress={({ nativeEvent }) =>
                                 handleBackspace(nativeEvent.key, index)
                             }
+                            editable={!loading}
                         />
                     ))}
                 </View>
 
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity 
+                style={styles.button}
+                onPress={ handleCode }>
                     <Text style={styles.buttonText}>CONFIRM</Text>
                 </TouchableOpacity>
+                <CustomAlert
+                                        visible={alertVisible}
+                                        message={alertMessage}
+                                        onClose={() => setAlertVisible(false)}
+                                    />
             </View>
         </TouchableWithoutFeedback>
     );

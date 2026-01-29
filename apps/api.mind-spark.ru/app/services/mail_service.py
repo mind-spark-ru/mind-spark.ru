@@ -65,7 +65,7 @@ class MailService:
 
 
     async def send_verification_code(self, to_email: str) -> dict:
-        code = f"{secrets.randbelow(900000) + 100000:06d}"
+        code = f"{secrets.randbelow(90000) + 10000:05d}"
         saved = await redis_client.save_verification_code(to_email, code)
         if not saved:
             return {

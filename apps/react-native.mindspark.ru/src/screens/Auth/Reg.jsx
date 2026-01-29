@@ -55,7 +55,7 @@ export default function Reg({ navigation }) {
             const data = await response.json();
 
             if (response.ok) {
-                navigation.navigate("Code")
+                navigation.navigate("Code", { email: email })
             }
             else{
                 showAlert("Error sending code")
