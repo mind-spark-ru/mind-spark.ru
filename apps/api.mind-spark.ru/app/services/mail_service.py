@@ -20,8 +20,21 @@ class MailService:
         msg = EmailMessage()
         msg["From"] = settings.EMAIL_ADDRESS
         msg["To"] = to_email
-        msg["Subject"] = "Yout AUTH code"
-        msg.set_content(f"Code: {code}")
+        msg["Subject"] = "Your MindSpark Verification Code"
+        plain_text = f"""
+            Your MindSpark Verification Code: {code}
+            
+            Valid for 10 minutes.
+            
+            This isn't just a code — it's your first step toward becoming the most mindful version of yourself.
+            
+            MindSpark: Personal evolution, delivered daily.
+            
+            
+            —
+            The MindSpark Team
+        """
+        msg.set_content(plain_text)
 
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
