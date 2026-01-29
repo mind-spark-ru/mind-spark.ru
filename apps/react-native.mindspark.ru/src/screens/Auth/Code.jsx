@@ -63,6 +63,7 @@ export default function Code({ route, navigation }) {
                         "Content-Type": "application/json",
                     },
                 });
+                const data = await response.json();
                 if (response.ok) {
                     if (data.success){
                         navigation.navigate("Profile")
