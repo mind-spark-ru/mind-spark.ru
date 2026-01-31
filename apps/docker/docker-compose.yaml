@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     build:
@@ -8,6 +10,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   redis:
     build:
       context: .
@@ -20,9 +25,43 @@ services:
     command: redis-server --appendonly yes
     networks:
       - app-network
+
+  api:
+    build:
+      context: ../
+      dockerfile: docker/api.Dockerfile
+    container_name: mindspark-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    volumes:
+      - ../api.mind-spark.ru/app:/app/app
+    restart: unless-stopped
+    networks:
+      - app-network
+    
+  ml:
+    platform: linux/amd64 
+    build:
+      context: ../
+      dockerfile: docker/ml.Dockerfile
+    container_name: mindspark-ml
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../ml.mind-spark.ru/app:/app/app
+    restart: unless-stopped
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
   redis_data:
+
 networks:
   app-network:
     driver: bridge
