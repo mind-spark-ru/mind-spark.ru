@@ -18,6 +18,6 @@ html, body, #root {
 }
 
 .logo-img {
-  width: 420px;
-  max-width: 80%;
+  width: clamp(180px, 40vw, 420px);
+  height: auto;
 }
