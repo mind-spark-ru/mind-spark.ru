@@ -13,14 +13,14 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir poetry
+COPY ml.mind-spark.ru/ .
 
-COPY ml.mind-spark.ru/pyproject.toml ml.mind-spark.ru/poetry.lock* ./
+RUN pip install --no-cache-dir poetry
 
 RUN pip install poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-root
+    poetry install --no-interaction
 
-COPY ml.mind-spark.ru/ .
+RUN poetry install 
 
 CMD ["python", "app/main.py"]
