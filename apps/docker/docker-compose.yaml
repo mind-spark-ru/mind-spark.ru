@@ -70,6 +70,25 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+  
+  react-native:
+    build:
+      context: ../
+      dockerfile: docker/react-native.Dockerfile
+    container_name: mindspark-react-native
+    ports:
+      - "8081:8081"
+      - "19001:19001" 
+      - "19002:19002"
+    volumes:
+      - ../react-native.mind-spark.ru:/app
+    environment:
+      - EXPO_DEBUG=true
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
