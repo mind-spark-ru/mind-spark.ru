@@ -1,4 +1,3 @@
-
 FROM python:3.11-slim-bookworm
 
 WORKDIR /app
@@ -11,17 +10,17 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
+    libopenblas-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+RUN pip install --no-cache-dir poetry
 
-COPY ml.mind-spark.ru/ .
+COPY ml.mind-spark.ru/pyproject.toml ml.mind-spark.ru/poetry.lock* ./
 
 RUN pip install poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-interaction
+    poetry install --no-interaction --no-root
 
-RUN poetry install 
-
+COPY ml.mind-spark.ru/ .
 
 CMD ["python", "app/main.py"]
