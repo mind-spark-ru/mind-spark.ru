@@ -4,7 +4,7 @@ services:
   postgres:
     build:
       context: .
-      dockerfile: db.Dockerfile
+      dockerfile: apps/docker/db.Dockerfile
     container_name: mindspark-db
     ports:
       - "5432:5432"
@@ -16,7 +16,7 @@ services:
   redis:
     build:
       context: .
-      dockerfile: redis.Dockerfile
+      dockerfile: apps/docker/redis.Dockerfile
     container_name: mindspark-redis
     ports:
       - "6379:6379"
@@ -28,8 +28,8 @@ services:
 
   api:
     build:
-      context: ../
-      dockerfile: docker/api.Dockerfile
+      context: .
+      dockerfile: apps/docker/api.Dockerfile
     container_name: mindspark-api
     ports:
       - "8000:8000"
@@ -39,7 +39,7 @@ services:
       redis:
         condition: service_started
     volumes:
-      - ../api.mind-spark.ru/app:/app/app
+      - .apps/api.mind-spark.ru/app:/app/app
     restart: unless-stopped
     networks:
       - app-network
@@ -47,26 +47,26 @@ services:
   ml:
     platform: linux/amd64 
     build:
-      context: ../
-      dockerfile: docker/ml.Dockerfile
+      context: .
+      dockerfile: apps/docker/ml.Dockerfile
     container_name: mindspark-ml
     ports:
       - "8001:8001"
     volumes:
-      - ../ml.mind-spark.ru/app:/app/app
+      - .apps/ml.mind-spark.ru/app:/app/app
     restart: unless-stopped
     networks:
       - app-network
   
   react:
     build:
-      context: ../
-      dockerfile: docker/react.Dockerfile
+      context: .
+      dockerfile: apps/docker/react.Dockerfile
     container_name: mindspark-react
     ports:
       - "3000:3000"
     volumes:
-      - ../react.mind-spark.ru/src:/app/src
+      - .apps/react.mind-spark.ru/src:/app/src
     restart: unless-stopped
     networks:
       - app-network
