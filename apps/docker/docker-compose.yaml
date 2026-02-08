@@ -39,7 +39,7 @@ services:
       redis:
         condition: service_started
     volumes:
-      - .apps/api.mind-spark.ru/app:/app/app
+      - ./apps/api.mind-spark.ru/app:/app/app
     restart: unless-stopped
     networks:
       - app-network
@@ -53,7 +53,7 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - .apps/ml.mind-spark.ru/app:/app/app
+      - ./apps/ml.mind-spark.ru/app:/app/app
     restart: unless-stopped
     networks:
       - app-network
@@ -66,7 +66,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .apps/react.mind-spark.ru/src:/app/src
+      - ./apps/react.mind-spark.ru/src:/app/src
     restart: unless-stopped
     networks:
       - app-network
