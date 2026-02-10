@@ -1,27 +1,35 @@
-from fastapi import APIRouter, Body, Response, Request, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from app.services.googleoauth_service import GoogleoauthService
 from app.api.dependencies.services import get_googleoauth_service
+from app.services.googleoauth_service import GoogleoauthService
+
 router = APIRouter()
 
 
 @router.get("/url")
 def get_google_oauth_redirect_uri(
     service: GoogleoauthService = Depends(get_googleoauth_service)
-):
-    uri = service.generate_google_oauth_redirect_uri()
-    return {
-        "url": uri
-    }
+)->dict:
+    try:
+        return {
+            "url": service.generate_google_oauth_redirect_uri()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e),
+        )
 
 
 @router.post("/callback")
 async def handle_code(
     code: str = Body(..., embed=True),
-    responseAPI: Response = None,
-    request: Request = None,
     service: GoogleoauthService = Depends(get_googleoauth_service)
-):
-    data = await service.decode_token(code)
-    print(data)
-    return data
+)->dict:
+    try:
+        return await service.decode_token(code)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e),
+        )
+
+

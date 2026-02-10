@@ -23,14 +23,14 @@ class MailService:
         msg["Subject"] = "Your MindSpark Verification Code"
         plain_text = f"""
             Your MindSpark Verification Code: {code}
-            
+
             Valid for 10 minutes.
-            
+
             This isn't just a code — it's your first step toward becoming the most mindful version of yourself.
-            
+
             MindSpark: Personal evolution, delivered daily.
-            
-            
+
+
             —
             The MindSpark Team
         """
