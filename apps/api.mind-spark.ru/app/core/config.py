@@ -16,6 +16,12 @@ class Settings(BaseSettings):
 
     VERIFICATION_CODE_TTL: int = 600
 
+    OAUTH_GOOGLE_CLIENT_SECRET: str
+    OAUTH_GOOGLE_CLIENT_ID: str
+    GOOGLE_TOKEN_URL: str
+
+    JWT_SECRET_KEY: str
+
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True,
     )
