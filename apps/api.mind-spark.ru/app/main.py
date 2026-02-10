@@ -23,11 +23,8 @@ app = FastAPI(title="api.mind-spark.ru", version="1.0.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8081",
-        "http://192.168.0.161",
-        "http://192.168.0.*",
-        "exp://*",
-        "http://*",
+        "http://localhost:8001",
+        "http://localhost:3000"
     ],
     allow_credentials=True,
     allow_methods=["*"],
