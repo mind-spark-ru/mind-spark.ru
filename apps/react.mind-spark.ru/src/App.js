@@ -1,8 +1,9 @@
 import React from "react";
-import Logo from "./components/Logo";
+import MainRouter from './components/Routers/MainRouter'
 
 function App() {
-  return <Logo />;
+
+  return <MainRouter/>;
 }
 
 export default App;
