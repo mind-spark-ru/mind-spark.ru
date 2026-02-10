@@ -5,7 +5,7 @@ from app.core.config import settings
 
 class GoogleoauthService:
     def __init__(self):
-        google_token_url = settings.GOOGLE_TOKEN_URL
+        self.google_token_url = settings.GOOGLE_TOKEN_URL
 
     def generate_google_oauth_redirect_uri(self):
         base_uri = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -33,13 +33,14 @@ class GoogleoauthService:
                     "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,
                     "client_secret": settings.OAUTH_GOOGLE_CLIENT_SECRET,
                     "grant_type": "authorization_code",
-                    "redirect_uri": "http://localhost:5173/auth/google",
+                    "redirect_uri": "http://localhost:3000/auth/google",
                     "code": code,
                 },
                 ssl=False,
             ) as response,
         ):
             token_data = await response.json()
+            print(token_data)
             if "error" in token_data:
                 return {
                     "error": token_data.get("error_description", token_data["error"])

@@ -15,12 +15,13 @@ def get_google_oauth_redirect_uri(
     }
 
 
-@router.post("/google/callback")
-def handle_code(
+@router.post("/callback")
+async def handle_code(
     code: str = Body(..., embed=True),
     responseAPI: Response = None,
     request: Request = None,
     service: GoogleoauthService = Depends(get_googleoauth_service)
 ):
-    data = service.decode_token(code)
+    data = await service.decode_token(code)
+    print(data)
     return data

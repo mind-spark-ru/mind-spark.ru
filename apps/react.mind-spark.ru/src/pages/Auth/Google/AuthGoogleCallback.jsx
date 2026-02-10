@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { redirect, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function AuthGoogleCallback(){
     const [searchParams] = useSearchParams();
@@ -8,8 +8,10 @@ export default function AuthGoogleCallback(){
     const code = searchParams.get('code');
 
     useEffect(()=> {
+        console.log(1)
+        console.log(code)
         if (code){
-            fetch('http://api:8000/v1/google/callback', {
+            fetch('http://localhost:8000/v1/google/callback', {
                 method: 'POST',
                 mode: 'cors',
                 headers: {
@@ -29,7 +31,8 @@ export default function AuthGoogleCallback(){
         }else{
             setError('No Auth data')
         }
-    }, [searchParams]);
+    }, [code]);
+    if (error) return <div>{error}</div>;
 
     return 1
 }
