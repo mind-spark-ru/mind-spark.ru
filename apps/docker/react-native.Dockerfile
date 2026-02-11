@@ -9,5 +9,3 @@ RUN npm install
 COPY react-native.mind-spark.ru/ .
 
 EXPOSE 19001 19002 8081
-
-CMD ["npx", "expo", "start", "--tunnel"]
