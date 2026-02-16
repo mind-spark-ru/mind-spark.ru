@@ -54,6 +54,19 @@ async def get_user(
         )
     return user
 
+@router.get(
+    "/email/{user_email}", response_model=UserResponse, status_code=status.HTTP_200_OK,
+)
+async def get_user_by_email(
+    user_email: str, service: UserService = Depends(get_user_service),
+):
+    user = await service.repository.get_by_email(user_email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found",
+        )
+    return user
+
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(

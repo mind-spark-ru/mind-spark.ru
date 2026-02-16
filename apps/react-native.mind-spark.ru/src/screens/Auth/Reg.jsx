@@ -31,6 +31,7 @@ export default function Reg({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [alertVisible, setAlertVisible] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
+    const encodedEmail = encodeURIComponent(email);
 
     if (!fontsLoaded) return null;
 
@@ -44,7 +45,6 @@ export default function Reg({ navigation }) {
     const navigate_send_code = async () =>{
         setLoading(true)
         try {
-            const encodedEmail = encodeURIComponent(email);
             const response = await fetch(`${API_URL}/v1/items/send_verification_code?email=${encodedEmail}`, {
                 method: "POST",
                 headers: {
@@ -92,24 +92,20 @@ export default function Reg({ navigation }) {
         setLoading(true);
 
         try {
-            const response = await fetch(API_URL + "/v1/users/", {
-                method: "POST",
+            const response = await fetch(API_URL + `/v1/users/email/${encodedEmail}`, {
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, username, password }),
+                }
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                navigate_send_code();
+                showAlert("User with this email already exist");
             } else {
-                if (response.status == 400) {
-                    showAlert(data.detail || "Incorrect registration data");
-                }
-                if (response.status == 422) {
-                    showAlert(data.detail[0].ctx.reason || "Incorrect registration data");
+                if (response.status == 404) {
+                    navigate_send_code();
                 }
             }
         } catch (error) {
