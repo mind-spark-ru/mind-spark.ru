@@ -8,7 +8,7 @@ class User(BaseModel):
 
     username = Column(String, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=True)
     fullname = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     is_verifed = Column(Boolean, default=False)

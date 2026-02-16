@@ -29,7 +29,7 @@ class UserRepository:
         return result.scalars().all()
 
     async def create(
-        self, user_data: UserCreate, hashed_password: str,
+        self, user_data: UserCreate, hashed_password: str | None = None,
     ) -> User:
         db_user = User(
             email=user_data.email,

@@ -31,7 +31,12 @@ class UserService:
         existing_user = await self.repository.get_by_email(user_data.email)
         if existing_user:
             raise ValueError("User with this email already exists")
-        hashed_password = self.get_password_hash(user_data.password)
+        if user_data.password == "":
+            user_data.password = None
+        try:
+            hashed_password = self.get_password_hash(user_data.password)
+        except Exception:
+            hashed_password = None
 
         user = await self.repository.create(user_data, hashed_password)
         return {
