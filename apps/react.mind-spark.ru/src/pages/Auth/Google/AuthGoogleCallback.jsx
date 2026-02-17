@@ -1,84 +1,106 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
-export default function AuthGoogleCallback(){
-    const [searchParams] = useSearchParams();
-    const [error, setError] = useState(null);
+export default function AuthGoogleCallback() {
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState(null);
 
-    const code = searchParams.get('code');
+  const code = searchParams.get("code");
 
-    useEffect(()=> {
-        console.log(1)
-        console.log(code)
-        if (code){
-            fetch('http://localhost:8000/v1/google/callback', {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ code : code })
-            })
-            .then(response => {
-                if (!response.ok){
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json()
-            })
-            .then((data) =>{
-                try{
-                    fetch(`http://localhost:8000/v1/users/email/${data.email}`, {
-                        method: 'GET',
-                        mode: 'cors',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response =>{
-                        if (response.ok){
-                            try{
-                                //***************************
-                            }catch(error){
-                                setError(error);
-                            }
-                        }else if (response.status == 404){
-                            try{
-                                fetch(`http://localhost:8000/v1/users/`, {
-                                    method: 'POST',
-                                    mode: 'cors',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({ 
-                                        email: data.email,
-                                        username: "NoName", 
-                                        password: "",
-                                        fullname: data.name
-                                    })
-                                })
-                                .then(response => {
-                                    console.log(data)
-                                })
-
-                            }catch(error){
-                                setError(error);
-                            }
-                        }else{
-                            setError("Error");
-                        }
-                    })
-                }catch(error){
-                    setError(error);
-                }
-                })
-            .catch(error => {
-                setError(error);
-            });
-        }else{
-            setError('No Auth data')
+  useEffect(() => {
+    const run = async () => {
+      try {
+        if (!code) {
+          setError("No Auth data");
+          return;
         }
-    }, [code]);
-    if (error) return <div>{error}</div>;
 
-    return 1
+        const googleRes = await fetch("http://localhost:8000/v1/google/callback", {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: code }),
+        });
+
+        if (!googleRes.ok) {
+          throw new Error(`HTTP error! status: ${googleRes.status}`);
+        }
+
+        const googleData = await googleRes.json();
+
+        const userRes = await fetch(
+          `http://localhost:8000/v1/users/email/${googleData.email}`,
+          {
+            method: "GET",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (userRes.ok) {
+          const userData = await userRes.json();
+
+          const sessionRes = await fetch(
+            `http://localhost:8000/v1/sessions/google?email=${googleData.email}`,
+            {
+              method: "POST",
+              mode: "cors",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            console.log(sessionData);
+          } else {
+            setError("Error");
+          }
+        } else if (userRes.status === 404) {
+          const createRes = await fetch("http://localhost:8000/v1/users/", {
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: googleData.email,
+              username: "NoName",
+              password: "",
+              fullname: googleData.name,
+            }),
+          });
+
+          if (!createRes.ok) {
+            setError("Error");
+            return;
+          }
+
+          const createdUser = await createRes.json(); // <-- тут есть email
+          const sessionRes = await fetch(
+            `http://localhost:8000/v1/sessions/google?email=${createdUser.email}`,
+            {
+              method: "POST",
+              mode: "cors",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            console.log(sessionData);
+          } else {
+            setError("Error");
+          }
+        } else {
+          setError("Error");
+        }
+      } catch (err) {
+        setError(err?.message ?? String(err));
+      }
+    };
+
+    run();
+  }, [code]);
+
+  if (error) return <div>{error}</div>;
+
+  return 1;
 }

@@ -27,6 +27,27 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e),
         )
 
+
+@router.post("/google", status_code = status.HTTP_200_OK)
+async def login_by_google(
+        email: str,
+        service: SessionService = Depends(get_session_service)
+):
+    try:
+        token = await service.login_by_google(email)
+        response = JSONResponse(
+            content={"message": "Login successful"},
+            status_code=status.HTTP_200_OK,
+        )
+        response.headers["X-Auth-Token"] = token
+        response.headers["Authorization"] = f"Bearer {token}"
+        return response
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    
+
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_user(
     authorization: str = Header(..., alias="Authorization"),
