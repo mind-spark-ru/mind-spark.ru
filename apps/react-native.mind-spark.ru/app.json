@@ -1,6 +1,5 @@
 {
   "expo": {
-    "fonts": ["./assets/fonts/Montserrat-Light.ttf"],
     "name": "react-native.mindspark.ru",
     "slug": "react-native.mindspark.ru",
     "version": "1.0.0",
@@ -8,11 +7,13 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "fonts": ["./assets/fonts/Montserrat-Light.ttf"],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "scheme": "mindspark",
     "ios": {
       "supportsTablet": true
     },

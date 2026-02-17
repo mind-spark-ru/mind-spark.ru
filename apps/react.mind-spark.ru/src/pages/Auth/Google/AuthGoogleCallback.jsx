@@ -39,22 +39,7 @@ export default function AuthGoogleCallback() {
 
         if (userRes.ok) {
           const userData = await userRes.json();
-
-          const sessionRes = await fetch(
-            `http://localhost:8000/v1/sessions/google?email=${googleData.email}`,
-            {
-              method: "POST",
-              mode: "cors",
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-
-          if (sessionRes.ok) {
-            const sessionData = await sessionRes.json();
-            console.log(sessionData);
-          } else {
-            setError("Error");
-          }
+          window.location.href = `mindspark://auth?email=${userData.email}`;
         } else if (userRes.status === 404) {
           const createRes = await fetch("http://localhost:8000/v1/users/", {
             method: "POST",
@@ -73,22 +58,8 @@ export default function AuthGoogleCallback() {
             return;
           }
 
-          const createdUser = await createRes.json(); // <-- тут есть email
-          const sessionRes = await fetch(
-            `http://localhost:8000/v1/sessions/google?email=${createdUser.email}`,
-            {
-              method: "POST",
-              mode: "cors",
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-
-          if (sessionRes.ok) {
-            const sessionData = await sessionRes.json();
-            console.log(sessionData);
-          } else {
-            setError("Error");
-          }
+          const createdUser = await createRes.json();
+          window.location.href = `mindspark://auth?email=${createdUser.email}`;
         } else {
           setError("Error");
         }
@@ -101,6 +72,5 @@ export default function AuthGoogleCallback() {
   }, [code]);
 
   if (error) return <div>{error}</div>;
-
-  return 1;
+  return;
 }
