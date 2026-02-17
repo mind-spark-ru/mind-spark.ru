@@ -15,7 +15,7 @@ export default function AuthGoogleCallback(){
                 method: 'POST',
                 mode: 'cors',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ code : code })
             })
@@ -23,9 +23,54 @@ export default function AuthGoogleCallback(){
                 if (!response.ok){
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const data = response.json()
-                return data;
+                return response.json()
             })
+            .then((data) =>{
+                try{
+                    fetch(`http://localhost:8000/v1/users/email/${data.email}`, {
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response =>{
+                        if (response.ok){
+                            try{
+                                //***************************
+                            }catch(error){
+                                setError(error);
+                            }
+                        }else if (response.status == 404){
+                            try{
+                                fetch(`http://localhost:8000/v1/users/`, {
+                                    method: 'POST',
+                                    mode: 'cors',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ 
+                                        email: data.email,
+                                        username: "NoName", 
+                                        password: "",
+                                        fullname: data.name
+                                    })
+                                })
+                                .then(response => {
+                                    console.log(data)
+                                })
+
+                            }catch(error){
+                                setError(error);
+                            }
+                        }else{
+                            setError("Error");
+                        }
+                    })
+                }catch(error){
+                    setError(error);
+                }
+                })
             .catch(error => {
                 setError(error);
             });
