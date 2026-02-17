@@ -23,7 +23,8 @@ export default function AuthGoogleCallback(){
                 if (!response.ok){
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return response.json();
+                const data = response.json()
+                return data;
             })
             .catch(error => {
                 setError(error);

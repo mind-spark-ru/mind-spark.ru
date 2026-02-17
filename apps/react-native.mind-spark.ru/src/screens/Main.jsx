@@ -40,7 +40,10 @@ export default function Main({ navigation }) {
           <Text style={styles.socialText}>Continue with Yandex</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity 
+            style={styles.socialButton}
+            onPress={() => navigation.navigate("GoogleLogin")}
+        >
           <Image source={require('@assets/images/browsers/Google.png')} style={styles.socialIcon} />
           <Text style={styles.socialText}>Continue with Google</Text>
         </TouchableOpacity>

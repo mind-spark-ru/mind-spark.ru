@@ -6,6 +6,7 @@ import Reg from "@/screens/Auth/Reg";
 import Login from "@/screens/Auth/Login";
 import Code from "@/screens/Auth/Code";
 import Profile from "@/screens/Profile";
+import GoogleLogin from "@/screens/Auth/GoogleLogin"
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Reg" component={Reg} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Code" component={Code} />
+        <Stack.Screen name="GoogleLogin" component={GoogleLogin} />
         <Stack.Screen name="Profile" component={Profile} />
       </Stack.Navigator>
     </NavigationContainer>
