@@ -17,6 +17,8 @@ import { API_URL } from "@./config";
 
 export default function Code({ route, navigation }) {
     const email = route.params?.email;
+    const password = route.params?.password;
+    const username = route.params?.username;
     const { fontsLoaded } = useAppFonts();
 
     const [code, setCode] = useState(["", "", "", "", ""]);
@@ -57,7 +59,7 @@ export default function Code({ route, navigation }) {
             }
             setLoading(true);
             try {
-                const response = await fetch(`${API_URL}/v1/items/verification?email=${email}&code=${codeString}`, {
+                const response = await fetch(`${API_URL}/v1/verification/verification?email=${email}&code=${codeString}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -66,7 +68,32 @@ export default function Code({ route, navigation }) {
                 const data = await response.json();
                 if (response.ok) {
                     if (data.success){
-                        navigation.navigate("Profile")
+                        try {
+                            const response = await fetch(API_URL + "/v1/users/", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ email, username, password }),
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok) {
+                                navigation.navigate("Profile")
+                            } else {
+                                if (response.status == 400) {
+                                    showAlert(data.detail || "Incorrect registration data");
+                                }
+                                if (response.status == 422) {
+                                    showAlert(data.detail[0].ctx.reason || "Incorrect registration data");
+                                }
+                            }
+                        } catch (error) {
+                            showAlert("Server is unavailable");
+                        } finally {
+                            setLoading(false);
+                        }
                     }
                     else{
                     showAlert("Incorrect code")

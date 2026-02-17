@@ -45,7 +45,7 @@ export default function Reg({ navigation }) {
     const navigate_send_code = async () =>{
         setLoading(true)
         try {
-            const response = await fetch(`${API_URL}/v1/items/send_verification_code?email=${encodedEmail}`, {
+            const response = await fetch(`${API_URL}/v1/verification/send_verification_code?email=${encodedEmail}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -55,7 +55,11 @@ export default function Reg({ navigation }) {
             const data = await response.json();
 
             if (response.ok) {
-                navigation.navigate("Code", { email: email })
+                navigation.navigate("Code", { 
+                    email: email,
+                    username: username,
+                    password: password
+                })
             }
             else{
                 showAlert("Error sending code")
