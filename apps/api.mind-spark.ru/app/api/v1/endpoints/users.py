@@ -11,6 +11,11 @@ from app.services.user_service import UserService
 router = APIRouter()
 
 
+@router.get("/health")
+def users_health()->dict:
+    return {"health": True}
+
+
 @router.post(
     "/", response_model=UserResponse, status_code=status.HTTP_201_CREATED,
 )

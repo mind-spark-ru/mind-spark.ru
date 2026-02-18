@@ -6,6 +6,11 @@ from app.services.googleoauth_service import GoogleoauthService
 router = APIRouter()
 
 
+@router.get("/health")
+def google_auth_health()->dict:
+    return {"health": True}
+
+
 @router.get("/url")
 def get_google_oauth_redirect_uri(
     service: GoogleoauthService = Depends(get_googleoauth_service)

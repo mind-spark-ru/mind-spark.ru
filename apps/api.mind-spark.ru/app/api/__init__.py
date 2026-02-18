@@ -1,9 +1,12 @@
 from fastapi import APIRouter
 
-from .v1.endpoints import google_auth, verification, sessions, users
+from .v1.endpoints import google_auth, verification, sessions, users, api
 
 router = APIRouter()
 
+router.include_router(
+    api.router, prefix="/v1/api", tags=["api"]
+)
 router.include_router(
     verification.router, prefix="/v1/verification", tags=["verification"]
 )

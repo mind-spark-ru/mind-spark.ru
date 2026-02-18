@@ -7,6 +7,13 @@ from app.services.neural_service import neural_service
 router = APIRouter()
 
 
+@router.get("/health")
+async def ml_health():
+    return {
+        "health": True,
+    }
+
+
 @router.get("/")
 async def root():
     return {

@@ -8,6 +8,11 @@ from app.services.session_service import SessionService
 router = APIRouter()
 
 
+@router.get("/health")
+def session_health()->dict:
+    return {"health": True}
+
+
 @router.post("/", status_code=status.HTTP_200_OK)
 async def login(
     user_data: LoginRequest,
