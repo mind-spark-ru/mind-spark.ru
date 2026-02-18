@@ -3,14 +3,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api import router
+from app.core.config import settings
 from app.services.neural_service import neural_service
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    neural_service.load()
+    if not settings.SKIP_MODEL_LOAD:
+        neural_service.load()
     yield
-    neural_service.llm = None
+    if neural_service.llm:
+        neural_service.llm = None
 
 
 app = FastAPI(
