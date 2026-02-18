@@ -1,4 +1,4 @@
-name: API Tests
+name: ML Tests
 
 on:
   push:
@@ -14,20 +14,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build API image
+      - name: Build ML image
         run: |
           cd apps/docker
-          docker compose -f docker-compose.yaml build postgres redis api
+          docker compose -f docker-compose.yaml build ml
 
-      - name: Start API
+      - name: Start ML
         run: |
           cd apps/docker
-          docker compose -f docker-compose.yaml up -d postgres redis api
+          docker compose -f docker-compose.yaml up -d ml
 
       - name: Wait for API to be ready
         run: |
           for i in {1..60}; do
-            if curl -fsS http://localhost:8000/v1/api/health > /dev/null; then
+            if curl -fsS http://localhost:8001/v1/api/health > /dev/null; then
               echo "API is up!"
               exit 0
             fi
@@ -46,11 +46,11 @@ jobs:
       - name: Install test deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r apps/api.mind-spark.ru/requirements/test.txt
+          pip install -r apps/ml.mind-spark.ru/requirements/test.txt
 
       - name: Run health test
         run: |
-          cd apps/api.mind-spark.ru
+          cd apps/ml.mind-spark.ru
           pytest
 
       - name: Compose down
