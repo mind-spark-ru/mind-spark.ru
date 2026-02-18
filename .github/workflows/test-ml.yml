@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  test-api:
+  test-ml:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +35,7 @@ jobs:
           done
           echo "API did not become ready in time"
           docker ps
-          cd apps/docker && docker compose -f docker-compose.yaml logs api
+          cd apps/docker && docker compose -f docker-compose.yaml logs ml
           exit 1
 
       - name: Set up Python
