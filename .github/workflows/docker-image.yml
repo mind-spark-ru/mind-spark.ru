@@ -1,0 +1,38 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image API
+      run: docker compose -f apps/docker/docker-compose.yaml build postgres redis api
+      
+  build-ml:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image ML
+      run: docker compose -f apps/docker/docker-compose.yaml build ml
+      
+  build-react:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image REACT
+      run: docker compose -f apps/docker/docker-compose.yaml build react
+
+  build-react-native:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image REACT-NATIVE
+      run: docker compose -f apps/docker/docker-compose.yaml build react-native
+
