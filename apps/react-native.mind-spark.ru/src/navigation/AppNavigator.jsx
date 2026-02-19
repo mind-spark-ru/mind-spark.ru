@@ -1,30 +1,34 @@
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import Main from "@/screens/Main";
-import Reg from "@/screens/Auth/Reg";
-import Login from "@/screens/Auth/Login";
-import Code from "@/screens/Auth/Code";
-import Profile from "@/screens/Profile";
-import GoogleLogin from "@/screens/Auth/GoogleLogin"
+import MainScreen from "@/screens/MainScreen";
+import CodeScreen from "@/screens/Auth/CodeScreen";
+import GoogleLoginScreen from "@/screens/Auth/GoogleLoginScreen";
+import LoginScreen from "@/screens/Auth/LoginScreen";
+import RegScreen from "@/screens/Auth/RegScreen";
 import ErrorScreen from "@/screens/ErrorScreen";
-import SoonScreen from "@/screens/SoonScreen"
+import SoonScreen from "@/screens/SoonScreen";
+import ProfileScreen from "@/screens/ProfileScreen";
+
 
 const Stack = createNativeStackNavigator();
 
-export default function AppNavigator() {
+function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Main" component={Main} />
-        <Stack.Screen name="Reg" component={Reg} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Code" component={Code} />
-        <Stack.Screen name="GoogleLogin" component={GoogleLogin} />
-        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Main" component={MainScreen} />
+        <Stack.Screen name="Reg" component={RegScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Code" component={CodeScreen} />
+        <Stack.Screen name="GoogleLogin" component={GoogleLoginScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Error" component={ErrorScreen} />
         <Stack.Screen name="Soon" component={SoonScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+export default AppNavigator;

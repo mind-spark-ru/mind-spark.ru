@@ -8,12 +8,15 @@ import {
   StatusBar,
 } from "react-native";
 
+function SoonScreen({ navigation }) {
+  const handleGoBackPress = () => {
+    navigation.goBack();
+  };
 
-export default function ErrorScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       <ImageBackground
         source={require("@assets/images/Error_screen.png")}
         style={styles.background}
@@ -26,8 +29,10 @@ export default function ErrorScreen({ navigation }) {
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.button}
-          onPress={() => navigation.goBack()}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleGoBackPress}
+          activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>GO BACK</Text>
         </TouchableOpacity>
@@ -35,6 +40,8 @@ export default function ErrorScreen({ navigation }) {
     </View>
   );
 }
+
+export default SoonScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -61,7 +68,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: "Montserrat-Regular",
-    color: "rgba(255,255,255,0.7)",
+    color: "rgba(255, 255, 255, 0.7)",
     fontSize: 12,
     textAlign: "center",
   },

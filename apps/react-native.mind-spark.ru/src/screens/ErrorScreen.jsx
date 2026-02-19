@@ -8,12 +8,15 @@ import {
   StatusBar,
 } from "react-native";
 
+function ErrorScreen({ navigation }) {
+  const handleRetryPress = () => {
+    navigation.navigate("Main");
+  };
 
-export default function ErrorScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       <ImageBackground
         source={require("@assets/images/Error_screen.png")}
         style={styles.background}
@@ -26,13 +29,19 @@ export default function ErrorScreen({ navigation }) {
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>TRY AGAIN</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRetryPress}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>GO HOME</Text>
         </TouchableOpacity>
       </ImageBackground>
     </View>
   );
 }
+
+export default ErrorScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -59,7 +68,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: "Montserrat-Regular",
-    color: "rgba(255,255,255,0.7)",
+    color: "rgba(255, 255, 255, 0.7)",
     fontSize: 12,
     textAlign: "center",
   },
