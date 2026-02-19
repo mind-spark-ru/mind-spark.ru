@@ -31,7 +31,7 @@ class SessionService:
             raise ValueError("Incorrect password")
         session = await self.Sessionrepository.create_session(user_id=user.id)
         return session.token
-    
+
     async def login_by_google(self , email: str)-> str:
         user = await self.Userrepository.get_by_email(email)
         if not user:

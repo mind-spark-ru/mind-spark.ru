@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import JSONResponse
 
@@ -16,7 +18,7 @@ def session_health()->dict:
 @router.post("/", status_code=status.HTTP_200_OK)
 async def login(
     user_data: LoginRequest,
-    service: SessionService = Depends(get_session_service),
+    service: Annotated[SessionService, Depends(get_session_service)],
 ):
     try:
         token = await service.login(user_data.email, user_data.password)
@@ -36,7 +38,7 @@ async def login(
 @router.post("/google", status_code = status.HTTP_200_OK)
 async def login_by_google(
         email: str,
-        service: SessionService = Depends(get_session_service)
+        service: Annotated[SessionService, Depends(get_session_service)]
 ):
     try:
         token = await service.login_by_google(email)
@@ -51,12 +53,12 @@ async def login_by_google(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         )
-    
+
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_user(
-    authorization: str = Header(..., alias="Authorization"),
-    service: SessionService = Depends(get_session_service),
+    authorization: Annotated[str, Header(alias="Authorization")],
+    service: Annotated[SessionService, Depends(get_session_service)],
 ):
     try:
         token = authorization.strip()

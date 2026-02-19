@@ -6,7 +6,6 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class Settings(BaseSettings):
-
     MODEL_NAME: str
     MODELS_PATH: str
     SKIP_MODEL_LOAD: bool

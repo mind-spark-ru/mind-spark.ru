@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from .v1.endpoints import google_auth, verification, sessions, users, api
+from .v1.endpoints import api, google_auth, sessions, users, verification
 
 router = APIRouter()
 

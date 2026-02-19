@@ -20,11 +20,14 @@ async def root():
         "message": "Neural Network API",
     }
 
+
 @router.get("/health")
 async def health_check():
     return {
-        "status": "healthy", "model_loaded": settings.MODEL_NAME,
+        "status": "healthy",
+        "model_loaded": settings.MODEL_NAME,
     }
+
 
 @router.post("/predict")
 async def predict(text: str):

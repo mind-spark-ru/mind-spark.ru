@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies.services import get_user_service
@@ -20,7 +22,7 @@ def users_health()->dict:
     "/", response_model=UserResponse, status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
-    user_data: UserCreate, service: UserService = Depends(get_user_service),
+    user_data: UserCreate, service: Annotated[UserService, Depends(get_user_service)],
 ):
     try:
         return await service.create_user(user_data)
@@ -50,7 +52,7 @@ async def get_users(
     "/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK,
 )
 async def get_user(
-    user_id: int, service: UserService = Depends(get_user_service),
+    user_id: int, service: Annotated[UserService, Depends(get_user_service)],
 ):
     user = await service.repository.get_by_id(user_id)
     if not user:
@@ -63,7 +65,7 @@ async def get_user(
     "/email/{user_email}", response_model=UserResponse, status_code=status.HTTP_200_OK,
 )
 async def get_user_by_email(
-    user_email: str, service: UserService = Depends(get_user_service),
+    user_email: str, service: Annotated[UserService, Depends(get_user_service)],
 ):
     user = await service.repository.get_by_email(user_email)
     if not user:
@@ -75,7 +77,7 @@ async def get_user_by_email(
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
-    user_id: int, service: UserService = Depends(get_user_service),
+    user_id: int, service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     await service.repository.delete(user_id)
 
@@ -86,7 +88,7 @@ async def delete_user(
 async def update_user(
     user_id: int,
     user_data: UserUpdate,
-    service: UserService = Depends(get_user_service),
+    service: Annotated[UserService, Depends(get_user_service)],
 ):
     user = await service.update_user(user_id=user_id, user_data=user_data)
     if not user:

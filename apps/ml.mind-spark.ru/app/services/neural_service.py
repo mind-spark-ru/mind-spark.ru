@@ -23,7 +23,7 @@ class NeuralService:
         )
 
     def chat(self, user_input: str) -> str:
-        prompt =  f"""
+        prompt = f"""
         {self.system_prompt}
 
         ПОЛЬЗОВАТЕЛЬ: {user_input}
@@ -31,13 +31,13 @@ class NeuralService:
         ОТВЕТ COACH MINDSHARK:
         """
         stream = self.llm(
-        prompt,
-        max_tokens=512,
-        temperature=0.7,
-        top_p=0.95,
-        repeat_penalty=1.1,
-        stop=["ПОЛЬЗОВАТЕЛЬ:", "ОТВЕТ COACH MINDSHARK:"],
-        stream=True,
+            prompt,
+            max_tokens=512,
+            temperature=0.7,
+            top_p=0.95,
+            repeat_penalty=1.1,
+            stop=["ПОЛЬЗОВАТЕЛЬ:", "ОТВЕТ COACH MINDSHARK:"],
+            stream=True,
         )
         for output in stream:
             if output.get("choices"):
@@ -47,5 +47,6 @@ class NeuralService:
 
     def _clean_response(self, text: str) -> str:
         return text
+
 
 neural_service = NeuralService()

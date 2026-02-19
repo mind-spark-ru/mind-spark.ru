@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from app.api.dependencies.services import get_googleoauth_service
@@ -13,7 +15,7 @@ def google_auth_health()->dict:
 
 @router.get("/url")
 def get_google_oauth_redirect_uri(
-    service: GoogleoauthService = Depends(get_googleoauth_service)
+    service: Annotated[GoogleoauthService, Depends(get_googleoauth_service)]
 )->dict:
     try:
         return {
@@ -27,8 +29,8 @@ def get_google_oauth_redirect_uri(
 
 @router.post("/callback")
 async def handle_code(
-    code: str = Body(..., embed=True),
-    service: GoogleoauthService = Depends(get_googleoauth_service)
+    code: Annotated[str, Body(embed=True)],
+    service: Annotated[GoogleoauthService, Depends(get_googleoauth_service)]
 )->dict:
     try:
         return await service.decode_token(code)
