@@ -20,6 +20,7 @@ import BackButton from "@assets/images/BackButton.svg";
 import CustomAlert from "@components/CustomAlert.jsx";
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { API_URL } from "@./config";
+import Loading from "@components/Loading.jsx";
 
 
 export default function Reg({ navigation }) {
@@ -43,7 +44,6 @@ export default function Reg({ navigation }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
     
     const navigate_send_code = async () =>{
-        setLoading(true)
         try {
             const response = await fetch(`${API_URL}/v1/verification/send_verification_code?email=${encodedEmail}`, {
                 method: "POST",
@@ -62,12 +62,11 @@ export default function Reg({ navigation }) {
                 })
             }
             else{
-                showAlert("Error sending code")
+                showAlert("Error sending code");
+                setLoading(false); 
             }
-        }catch(error){
-            showAlert("Error sending code")
-        }
-        finally {
+        } catch(error){
+            showAlert("Error sending code");
             setLoading(false);
         }
     }
@@ -107,6 +106,7 @@ export default function Reg({ navigation }) {
 
             if (response.ok) {
                 showAlert("User with this email already exist");
+                setLoading(false); 
             } else {
                 if (response.status == 404) {
                     navigate_send_code();
@@ -114,13 +114,13 @@ export default function Reg({ navigation }) {
             }
         } catch (error) {
             showAlert("Server is unavailable");
-        } finally {
             setLoading(false);
         }
     }
 
     return (
         <View style={styles.container}>
+            <Loading visible={loading} />
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -139,7 +139,7 @@ export default function Reg({ navigation }) {
 
                             <View style={styles.header}>
                                 <LogoSpark></LogoSpark>
-                                <Text style={styles.title}>Let’s Get Started!</Text>
+                                <Text style={styles.title}>Let's Get Started!</Text>
                             </View>
 
                             <TextInput
@@ -171,6 +171,7 @@ export default function Reg({ navigation }) {
 
                                 <TouchableOpacity
                                     onPress={() => setPasswordVisible(!passwordVisible)}
+                                    disabled={loading}
                                 >
                                     {passwordVisible ? <EyeOpen style={styles.eyeOpenButton} width={24} height={24} /> : <EyeClosed style={styles.eyeCloseButton} width={24} height={24} />}
                                 </TouchableOpacity>
@@ -188,6 +189,7 @@ export default function Reg({ navigation }) {
 
                                 <TouchableOpacity
                                     onPress={() => setPasswordVisible(!passwordVisible)}
+                                    disabled={loading}
                                 >
                                     {passwordVisible ? <EyeOpen style={styles.eyeOpenButton} width={24} height={24} /> : <EyeClosed style={styles.eyeCloseButton} width={24} height={24} />}
                                 </TouchableOpacity>
@@ -196,6 +198,7 @@ export default function Reg({ navigation }) {
                             <TouchableOpacity
                                 style={styles.signUpButton}
                                 onPress={handleReg}
+                                disabled={loading}
                             >
                                 <Text style={styles.signUpText}>SIGN UP</Text>
                             </TouchableOpacity>
@@ -278,5 +281,13 @@ const styles = StyleSheet.create({
         fontFamily: "Montserrat-SemiBold",
         color: "#FBF8EF",
         fontSize: 15,
+    },
+    eyeOpenButton: {
+        width: 24,
+        height: 24,
+    },
+    eyeCloseButton: {
+        width: 24,
+        height: 24,
     },
 });
