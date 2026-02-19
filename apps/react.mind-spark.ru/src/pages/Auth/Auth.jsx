@@ -1,32 +1,38 @@
-import React, { useEffect } from 'react';
-import { API_URL, REACT_URL } from '../../config'
+import React, { useEffect } from "react";
+import { API_URL } from "../../config";
 
-export default function Auth(params){
-  async function GetGoogleAuthUrl() {
+function Auth() {
+  const handleGetGoogleAuthUrl = async () => {
     try {
-      const response = await fetch(API_URL + '/v1/google/url', {
-        method: 'GET',
+      const response = await fetch(`${API_URL}/v1/google/url`, {
+        method: "GET",
         headers: {
-          'Accept': 'application/json',
+          Accept: "application/json",
         },
       });
-      
-      if (!response.ok){
+
+      if (!response.ok) {
         throw new Error(`Failed to get Google URL. Status: ${response.status}`);
       }
+
       const data = await response.json();
+
       window.location.href = data.url;
-    } catch (error){
-      throw new Error(`Server is unavailable`);
+    } catch (error) {
+      throw new Error("Server is unavailable");
     }
   };
+
   useEffect(() => {
-    GetGoogleAuthUrl();
+    void handleGetGoogleAuthUrl();
   }, []);
-  return(
-    <div style={{ padding: '20px', textAlign: 'center' }}>
+
+  return (
+    <div style={{ padding: "20px", textAlign: "center" }}>
       <h2>Redirecting to Google Authentication...</h2>
       <p>Please wait...</p>
     </div>
   );
 }
+
+export default Auth;

@@ -1,36 +1,39 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { API_URL } from '../../../config'
+import { API_URL } from "../../../config";
 
-export default function AuthGoogleCallback() {
+function AuthGoogleCallback() {
   const [searchParams] = useSearchParams();
   const [error, setError] = useState(null);
 
   const code = searchParams.get("code");
 
   useEffect(() => {
-    const run = async () => {
+    const handleCallback = async () => {
       try {
         if (!code) {
           setError("No Auth data");
           return;
         }
 
-        const googleRes = await fetch(API_URL + "/v1/google/callback", {
-          method: "POST",
-          mode: "cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: code }),
-        });
+        const googleResponse = await fetch(
+          `${API_URL}/v1/google/callback`,
+          {
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          }
+        );
 
-        if (!googleRes.ok) {
-          throw new Error(`HTTP error! status: ${googleRes.status}`);
+        if (!googleResponse.ok) {
+          throw new Error(`HTTP error! status: ${googleResponse.status}`);
         }
 
-        const googleData = await googleRes.json();
+        const googleData = await googleResponse.json();
 
-        const userRes = await fetch(
-          API_URL + `/v1/users/email/${googleData.email}`,
+        const userResponse = await fetch(
+          `${API_URL}/v1/users/email/${googleData.email}`,
           {
             method: "GET",
             mode: "cors",
@@ -38,11 +41,14 @@ export default function AuthGoogleCallback() {
           }
         );
 
-        if (userRes.ok) {
-          const userData = await userRes.json();
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
           window.location.href = `mindspark://auth?email=${userData.email}`;
-        } else if (userRes.status === 404) {
-          const createRes = await fetch(API_URL + "/v1/users/", {
+          return;
+        }
+
+        if (userResponse.status === 404) {
+          const createResponse = await fetch(`${API_URL}/v1/users/`, {
             method: "POST",
             mode: "cors",
             headers: { "Content-Type": "application/json" },
@@ -54,24 +60,30 @@ export default function AuthGoogleCallback() {
             }),
           });
 
-          if (!createRes.ok) {
+          if (!createResponse.ok) {
             setError("Error");
             return;
           }
 
-          const createdUser = await createRes.json();
+          const createdUser = await createResponse.json();
           window.location.href = `mindspark://auth?email=${createdUser.email}`;
-        } else {
-          setError("Error");
+          return;
         }
+
+        setError("Error");
       } catch (err) {
         setError(err?.message ?? String(err));
       }
     };
 
-    run();
+    void handleCallback();
   }, [code]);
 
-  if (error) return <div>{error}</div>;
-  return;
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  return null;
 }
+
+export default AuthGoogleCallback;
