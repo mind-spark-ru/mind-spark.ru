@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
 import CustomAlert from "@/components/CustomAlert";
+import { REACT_URL } from "@./config";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -26,7 +27,7 @@ export default function GoogleLogin() {
         });
 
         const result = await WebBrowser.openAuthSessionAsync(
-          "http://localhost:3000/auth/",
+          REACT_URL + "/auth/",
           redirectUri
         );
 

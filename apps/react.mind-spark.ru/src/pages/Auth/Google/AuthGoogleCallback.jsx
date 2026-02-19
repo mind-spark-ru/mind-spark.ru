@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { API_URL } from '../../../config'
 
 export default function AuthGoogleCallback() {
   const [searchParams] = useSearchParams();
@@ -15,7 +16,7 @@ export default function AuthGoogleCallback() {
           return;
         }
 
-        const googleRes = await fetch("http://localhost:8000/v1/google/callback", {
+        const googleRes = await fetch(API_URL + "/v1/google/callback", {
           method: "POST",
           mode: "cors",
           headers: { "Content-Type": "application/json" },
@@ -29,7 +30,7 @@ export default function AuthGoogleCallback() {
         const googleData = await googleRes.json();
 
         const userRes = await fetch(
-          `http://localhost:8000/v1/users/email/${googleData.email}`,
+          API_URL + `/v1/users/email/${googleData.email}`,
           {
             method: "GET",
             mode: "cors",
@@ -41,7 +42,7 @@ export default function AuthGoogleCallback() {
           const userData = await userRes.json();
           window.location.href = `mindspark://auth?email=${userData.email}`;
         } else if (userRes.status === 404) {
-          const createRes = await fetch("http://localhost:8000/v1/users/", {
+          const createRes = await fetch(API_URL + "/v1/users/", {
             method: "POST",
             mode: "cors",
             headers: { "Content-Type": "application/json" },

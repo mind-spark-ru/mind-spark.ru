@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     MODEL_NAME: str
     MODELS_PATH: str
+    SKIP_MODEL_LOAD: bool
 
     @property
     def model_path(self) -> str:

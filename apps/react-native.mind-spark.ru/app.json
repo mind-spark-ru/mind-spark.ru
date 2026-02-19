@@ -7,7 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "fonts": ["./assets/fonts/Montserrat-Light.ttf"],
+    "fonts": [
+      "./assets/fonts/Montserrat-Light.ttf"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,6 +17,7 @@
     },
     "scheme": "mindspark",
     "ios": {
+      "bundleIdentifier": "com.mind-spark.mindspark",
       "supportsTablet": true
     },
     "android": {
@@ -22,7 +25,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.mindspark.mindspark"
     },
     "web": {
       "favicon": "./assets/favicon.png"

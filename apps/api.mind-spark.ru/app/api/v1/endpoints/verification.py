@@ -5,9 +5,9 @@ from app.services.mail_service import mail_service
 router = APIRouter()
 
 
-@router.get("/")
-def items()->dict:
-    return {"success": True}
+@router.get("/health")
+def verification_health()->dict:
+    return {"health": True}
 
 @router.post("/send_verification_code")
 async def send_verification_code(

@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
+import { API_URL, REACT_URL } from '../../config'
 
 export default function Auth(params){
   async function GetGoogleAuthUrl() {
     try {
-      const response = await fetch('http://localhost:8000/v1/google/url', {
+      const response = await fetch(API_URL + '/v1/google/url', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -14,7 +15,6 @@ export default function Auth(params){
         throw new Error(`Failed to get Google URL. Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Redirect URL:', data.url);
       window.location.href = data.url;
     } catch (error){
       throw new Error(`Server is unavailable`);
