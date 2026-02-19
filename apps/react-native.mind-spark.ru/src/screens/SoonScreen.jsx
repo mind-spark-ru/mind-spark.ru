@@ -20,14 +20,16 @@ export default function ErrorScreen({ navigation }) {
         resizeMode="cover"
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Oops!</Text>
+          <Text style={styles.title}>SOON!</Text>
           <Text style={styles.subtitle}>
-            Looks like something went wrong...
+            Just wait, this feature is in development...
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>TRY AGAIN</Text>
+        <TouchableOpacity style={styles.button}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.buttonText}>GO BACK</Text>
         </TouchableOpacity>
       </ImageBackground>
     </View>

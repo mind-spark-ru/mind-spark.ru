@@ -36,13 +36,6 @@ import Minus from "@assets/images/IconsMainScreen/Minus.svg";
 
 export default function Profile({ navigation }) {
   const { fontsLoaded } = useAppFonts();
-    if (!fontsLoaded) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#C7FF10" />
-        </View>
-      );
-    }
     const [activeTab, setActiveTab] = React.useState(0);
     const anim = useRef(new Animated.Value(0)).current;
     const indicatorOpacity = useRef(new Animated.Value(1)).current;
@@ -60,6 +53,13 @@ export default function Profile({ navigation }) {
         useNativeDriver: true,
       }).start();
     }, [activeTab]);
+    if (!fontsLoaded) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#C7FF10" />
+        </View>
+      );
+    }
     const activitiesData = [
       {
         icon: 'walk',

@@ -14,6 +14,7 @@ import BackButton from "@assets/images/BackButton.svg";
 import { useAppFonts } from '@/hooks/useAppFonts';
 import CustomAlert from "@components/CustomAlert.jsx";
 import { API_URL } from "@./config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Code({ route, navigation }) {
     const email = route.params?.email;
@@ -80,7 +81,36 @@ export default function Code({ route, navigation }) {
                             const data = await response.json();
 
                             if (response.ok) {
-                                navigation.navigate("Profile")
+                                try {
+                                    const sessionResponse = await fetch(API_URL + "/v1/sessions/", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify({ email, password }),
+                                    });
+
+                                    const sessionData = await sessionResponse.json();
+
+                                    if (sessionResponse.ok) {
+                                        const token =
+                                            sessionResponse.headers.get("X-Auth-Token") ||
+                                            sessionResponse.headers.get("Authorization")?.replace("Bearer ", "") ||
+                                            sessionData.token;
+
+                                        if (token) {
+                                            await AsyncStorage.setItem("auth_token", token);
+                                            await AsyncStorage.setItem("user_email", email);
+                                            navigation.navigate("Profile");
+                                        } else {
+                                            showAlert("Authorization token not found");
+                                        }
+                                    } else {
+                                        showAlert(sessionData.detail || "Incorrect login or password");
+                                    }
+                                } catch (error) {
+                                    showAlert("Server is unavailable");
+                                }
                             } else {
                                 if (response.status == 400) {
                                     showAlert(data.detail || "Incorrect registration data");

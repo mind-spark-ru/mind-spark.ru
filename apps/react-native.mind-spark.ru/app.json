@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "react-native.mindspark.ru",
+    "name": "MindSpark",
     "slug": "react-native.mindspark.ru",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +17,7 @@
     },
     "scheme": "mindspark",
     "ios": {
-      "bundleIdentifier": "com.mind-spark.mindspark",
+      "bundleIdentifier": "ru.mind-spark.mindspark",
       "supportsTablet": true
     },
     "android": {

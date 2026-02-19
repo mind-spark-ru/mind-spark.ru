@@ -10,11 +10,23 @@ import {
 import { useFonts } from 'expo-font';
 import Logotype from '@assets/images/Logotype.js';
 import { useAppFonts } from '@/hooks/useAppFonts';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
 
 export default function Main({ navigation }) {
   const { fontsLoaded } = useAppFonts();
-  
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem("auth_token");
+        if (token) {
+          navigation.navigate("Profile");
+        }
+      } catch (e) {
+      }
+    };
+    checkAuth();
+  }, [navigation]);
 
   return (
     <ImageBackground
@@ -35,7 +47,10 @@ export default function Main({ navigation }) {
           <Text style={styles.signUpText}>SIGN UP</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity 
+          style={styles.socialButton}
+          onPress={() => navigation.navigate("Soon")}
+        >
           <Image source={require('@assets/images/browsers/Yandex.png')} style={styles.socialIcon} />
           <Text style={styles.socialText}>Continue with Yandex</Text>
         </TouchableOpacity>
