@@ -231,9 +231,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 35,
-    left: 15,
-    zIndex: 20,
+    top: 60,
+    left: 20,
+    zIndex: 100,
   },
   header: {
     alignItems: "center",

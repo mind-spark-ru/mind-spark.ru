@@ -9,6 +9,7 @@ import {
   Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 import Loading from "@/components/Loading";
 import { useAppFonts } from "@/hooks/useAppFonts";
@@ -174,6 +175,11 @@ function ProfileScreen({ navigation }) {
   };
 
   return (
+    <LinearGradient
+          colors={["#1A2B00", "#0E0E0E", "#000000"]}
+          locations={[0, 0.4, 1]}
+          style={{ flex: 1 }}
+    >
     <SafeAreaView style={styles.container}>
       <Loading visible={false} />
 
@@ -375,48 +381,8 @@ function ProfileScreen({ navigation }) {
           </View>
         </View>
       </ScrollView>
-
-      <View style={styles.bottomNavWrapper}>
-        <View style={styles.bottomNav}>
-          <Animated.View
-            style={[
-              styles.activeIndicator,
-              {
-                transform: [{ translateX: anim }],
-                opacity: indicatorOpacity,
-              },
-            ]}
-          />
-
-          <BottomNavItem
-            iconSvg={<Home width={23} height={23} />}
-            isActive={activeTab === 0}
-            onPress={() => setActiveTab(0)}
-          />
-          <BottomNavItem
-            iconSvg={<Stats width={23} height={23} />}
-            isActive={activeTab === 1}
-            onPress={() => setActiveTab(1)}
-          />
-          <BottomNavItem
-            iconSvg={<Star width={100} height={100} />}
-            isActive={activeTab === 2}
-            onPress={() => setActiveTab(2)}
-            isStar
-          />
-          <BottomNavItem
-            iconSvg={<Friends width={23} height={23} />}
-            isActive={activeTab === 3}
-            onPress={() => setActiveTab(3)}
-          />
-          <BottomNavItem
-            iconSvg={<Setting width={23} height={23} />}
-            isActive={activeTab === 4}
-            onPress={() => setActiveTab(4)}
-          />
-        </View>
-      </View>
     </SafeAreaView>
+    </LinearGradient >
   );
 }
 
@@ -835,74 +801,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 16,
     bottom: 16,
-  },
-  bottomNavWrapper: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-  },
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#2A2A2A",
-    borderTopWidth: 1,
-    borderTopColor: "#2A2A2A",
-    paddingVertical: 16,
-    height: 80,
-    overflow: "visible",
-    position: "relative",
-  },
-  activeIndicator: {
-    position: "absolute",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#FBF8EF",
-    zIndex: 0,
-    top: -10,
-    left: 14,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    marginBottom: 10,
-  },
-  navIconContainer: {
-    width: 38,
-    height: 38,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "transparent",
-    transform: [{ translateY: -10 }],
-  },
-  navIconContainerActive: {
-    width: 40,
-    height: 40,
-    borderRadius: 19,
-    backgroundColor: "transparent",
-    transform: [{ translateY: -20 }],
-  },
-  navIconContainerStarActive: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "transparent",
-    transform: [{ translateY: -22 }],
-  },
-  starShadowWrapper: {
-    shadowColor: "#C7FF10",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 12,
-    backgroundColor: "transparent",
-  },
-  navIconContainerStar: {
-    backgroundColor: "transparent",
   },
 });

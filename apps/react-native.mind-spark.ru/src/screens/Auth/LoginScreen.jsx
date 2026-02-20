@@ -102,6 +102,15 @@ function LoginScreen({ navigation }) {
     <View style={styles.container}>
       <Loading visible={isLoading} />
 
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={handleGoBackPress}
+        disabled={isLoading}
+        activeOpacity={0.8}
+      >
+        <BackButtonIcon />
+      </TouchableOpacity>
+
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -112,14 +121,6 @@ function LoginScreen({ navigation }) {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={handleGoBackPress}
-                disabled={isLoading}
-                activeOpacity={0.8}
-              >
-                <BackButtonIcon />
-              </TouchableOpacity>
 
               <View style={styles.header}>
                 <LogoSpark />
@@ -205,9 +206,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: -100,
-    left: 5,
-    zIndex: 20,
+    top: 60,
+    left: 20,
+    zIndex: 100,
   },
   header: {
     alignItems: "center",
