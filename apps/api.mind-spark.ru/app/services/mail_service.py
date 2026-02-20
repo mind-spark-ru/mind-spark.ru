@@ -46,7 +46,7 @@ class MailService:
             tls_context=ssl_context,
             username=settings.EMAIL_ADDRESS,
             password=settings.EMAIL_PASSWORD,
-            timeout=10,
+            timeout=5,
         )
         try:
             await aiosmtplib.send(
@@ -57,7 +57,7 @@ class MailService:
                 tls_context=ssl_context,
                 username=settings.EMAIL_ADDRESS,
                 password=settings.EMAIL_PASSWORD,
-                timeout=30,
+                timeout=5,
             )
             return True
         except Exception:

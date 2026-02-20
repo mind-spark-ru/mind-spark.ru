@@ -59,8 +59,7 @@ function RegScreen({ navigation }) {
       );
 
       await response.json();
-
-      if (response.ok) {
+      if (response.success) {
         navigation.navigate("Code", {
           email,
           username,
