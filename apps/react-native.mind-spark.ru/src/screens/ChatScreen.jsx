@@ -16,21 +16,27 @@ import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppFonts } from "@/hooks/useAppFonts";
+
 import Magic1 from "@assets/images/IconsMainScreen/Magic1.svg";
+import Square from "@assets/images/IconsMainScreen/Square.svg";
+
 import BottomNavigation from "@/components/BottomNavigation";
+
 
 export default function ChatScreen() {
     const { fontsLoaded } = useAppFonts();
-    const [isSearchActive, setIsSearchActive] = React.useState(false);
-    const [isDeepActive, setIsDeepActive] = React.useState(false);
-    const insets = useSafeAreaInsets();
 
+    const [isSearchActive, setIsSearchActive] = useState(false);
+    const [isDeepActive, setIsDeepActive] = useState(false);
+    
     const [message, setMessage] = useState("");
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
     const scrollViewRef = useRef(null);
     const translateY = useRef(new Animated.Value(0)).current;
-    const headerOpacity = useRef(new Animated.Value(1)).current; 
+    const headerOpacity = useRef(new Animated.Value(1)).current;
+
+    const [isSending, setIsSending] = useState(false);
 
     useEffect(() => {
         const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -82,12 +88,15 @@ export default function ChatScreen() {
     }, [translateY, headerOpacity]);
 
     const handleSend = () => {
+        setIsSending((prev) => !prev);
+
         if (!message.trim()) return;
 
         console.log("Send:", message);
         setMessage("");
         scrollViewRef.current?.scrollToEnd({ animated: true });
     };
+
 
     if (!fontsLoaded) return null;
 
@@ -100,7 +109,7 @@ export default function ChatScreen() {
             <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
                 <View style={{ flex: 1 }}>
 
-                    <Animated.View 
+                    <Animated.View
                         style={[
                             styles.headerRow,
                             { opacity: headerOpacity },
@@ -211,11 +220,12 @@ export default function ChatScreen() {
                                         placeholderTextColor="#888"
                                         style={styles.input}
                                     />
-                                    <TouchableOpacity
-                                        style={styles.sendButton}
-                                        onPress={handleSend}
-                                    >
-                                        <Ionicons name="arrow-forward" size={20} color="#000" />
+                                    <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+                                        {isSending ? (
+                                            <Square width={16} height={16} />
+                                        ) : (
+                                            <Ionicons name="arrow-forward" size={20} color="#000" />
+                                        )}
                                     </TouchableOpacity>
                                 </View>
 
