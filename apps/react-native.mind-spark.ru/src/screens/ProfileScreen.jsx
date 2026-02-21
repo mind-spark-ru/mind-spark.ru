@@ -7,6 +7,8 @@ import {
   StyleSheet,
   TextInput,
   Animated,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,11 +17,6 @@ import Loading from "@/components/Loading";
 import { useAppFonts } from "@/hooks/useAppFonts";
 
 import Avatar from "@assets/images/IconsMainScreen/Avatar.svg";
-import Friends from "@assets/images/IconsMainScreen/Friends.svg";
-import Home from "@assets/images/IconsMainScreen/Home.svg";
-import Setting from "@assets/images/IconsMainScreen/Setting.svg";
-import Star from "@assets/images/IconsMainScreen/Star.svg";
-import Stats from "@assets/images/IconsMainScreen/Stats.svg";
 import Watch from "@assets/images/IconsMainScreen/Watch.svg";
 
 import ActivityCircle from "@assets/images/IconsMainScreen/Circles/ActivityCircle.svg";
@@ -41,9 +38,14 @@ import Water from "@assets/images/IconsMainScreen/Trackers/Water.svg";
 function ProfileScreen({ navigation }) {
   const { fontsLoaded } = useAppFonts();
 
+  const [note, setNote] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+
   const [activeTab, setActiveTab] = useState(0);
   const anim = useRef(new Animated.Value(0)).current;
   const indicatorOpacity = useRef(new Animated.Value(1)).current;
+
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     const isStarTab = activeTab === 2;
@@ -107,40 +109,6 @@ function ProfileScreen({ navigation }) {
     },
   ];
 
-  const BottomNavItem = ({ iconSvg, isActive, onPress, isStar = false }) => {
-    const [scale, setScale] = useState(1);
-
-    return (
-      <TouchableOpacity
-        style={[styles.navItem, isActive && styles.navItemActive]}
-        onPress={onPress}
-        onPressIn={() => isStar && setScale(1.1)}
-        onPressOut={() => isStar && setScale(1)}
-        activeOpacity={0.8}
-      >
-        <View
-          style={[
-            styles.navIconContainer,
-            isActive && !isStar && styles.navIconContainerActive,
-            isStar && styles.navIconContainerStar,
-            isStar && {
-              transform: [
-                { scale },
-                { translateY: isActive ? -20 : -16 },
-              ],
-            },
-          ]}
-        >
-          {isStar && isActive ? (
-            <View style={styles.starShadowWrapper}>{iconSvg}</View>
-          ) : (
-            iconSvg
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   const MetricCircle = ({
     svgComponent: SvgComponent,
     value,
@@ -176,213 +144,248 @@ function ProfileScreen({ navigation }) {
 
   return (
     <LinearGradient
-          colors={["#1A2B00", "#0E0E0E", "#000000"]}
-          locations={[0, 0.4, 1]}
-          style={{ flex: 1 }}
+      colors={["#1A2B00", "#0E0E0E", "#141414"]}
+      locations={[0, 0.4, 1]}
+      style={{ flex: 1 }}
     >
-    <SafeAreaView style={styles.container}>
-      <Loading visible={false} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={0}
+      >
+        <SafeAreaView style={styles.container}>
+          <Loading visible={false} />
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.headerContainer}>
-          <View style={styles.topRow}>
-            <View style={styles.leftColumn}>
-              <TouchableOpacity style={styles.avatarButton} activeOpacity={0.8}>
-                <Avatar width={28} height={28} />
-              </TouchableOpacity>
-            </View>
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.headerContainer}>
+              <View style={styles.topRow}>
+                <View style={styles.leftColumn}>
+                  <TouchableOpacity style={styles.avatarButton} activeOpacity={0.8}>
+                    <Avatar width={28} height={28} />
+                  </TouchableOpacity>
+                </View>
 
-            <View style={styles.centerColumn}>
-              <TouchableOpacity style={styles.todayButton} activeOpacity={0.8}>
-                <Text style={styles.todayText}>TODAY</Text>
-              </TouchableOpacity>
-            </View>
+                <View style={styles.centerColumn}>
+                  <TouchableOpacity style={styles.todayButton} activeOpacity={0.8}>
+                    <Text style={styles.todayText}>TODAY</Text>
+                  </TouchableOpacity>
+                </View>
 
-            <View style={styles.rightColumn}>
-              <View style={styles.batteryContainer}>
-                <Text style={styles.batteryText}>89%</Text>
-                <Watch width={28} height={28} />
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greeting}>Good Morning, Anna!</Text>
-            <Text style={styles.subheader}>
-              Take a look at your current trackers
-            </Text>
-          </View>
-
-          <View style={styles.sparkContainer}>
-            <View style={styles.ringInner}>
-              <MetricCircle
-                svgComponent={StressCircle}
-                value="25%"
-                label="STRESS"
-                circleSize={100}
-                valueFontSize={20}
-              />
-              <MetricCircle
-                svgComponent={SparkCircle}
-                value="75"
-                label="SPARK"
-                circleSize={140}
-                valueFontSize={36}
-                isLarge
-              />
-              <MetricCircle
-                svgComponent={ActivityCircle}
-                value="46%"
-                label="ACTIVITY"
-                circleSize={100}
-                valueFontSize={20}
-              />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.adviceCard}>
-          <View style={styles.adviceBox}>
-            <Text style={styles.adviceTitle}>Advice of the day</Text>
-            <View style={styles.iconWrapper}>
-              <Magic1 width={20} height={20} />
-            </View>
-          </View>
-
-          <Text style={styles.adviceText}>
-            Is stress at its peak? Choose a quiet place for a break at 3 p.m.
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's activities</Text>
-
-          {activitiesData.map((item, i) => (
-            <View key={i} style={styles.activityItem}>
-              <View style={styles.iconBox}>
-                <item.svg width={35} height={35} />
-              </View>
-
-              <View style={styles.activityInfo}>
-                <Text style={styles.activityLabel}>{item.label}</Text>
-                <View style={styles.valueContainer}>
-                  <Text style={styles.activityValue}>{item.value}</Text>
-                  <Text style={styles.activityGoal}>{item.goal}</Text>
+                <View style={styles.rightColumn}>
+                  <View style={styles.batteryContainer}>
+                    <Text style={styles.batteryText}>89%</Text>
+                    <Watch width={28} height={28} />
+                  </View>
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.plusBtn} activeOpacity={0.8}>
-                <item.unit width={25} height={25} />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Measurements</Text>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Text style={styles.moreLink}>More</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.measurementCard}>
-            <Text style={styles.measureLabel}>WEIGHT</Text>
-            <Text style={styles.measureGoal}>Goal: 57.0 kg</Text>
-
-            <View style={styles.weightRow}>
-              <TouchableOpacity activeOpacity={0.8}>
-                <Minus />
-              </TouchableOpacity>
-              <Text style={styles.weightValue}>53.4 kg</Text>
-              <TouchableOpacity activeOpacity={0.8}>
-                <Plus />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Activities</Text>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Text style={styles.moreLink}>More</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.activitySummary}>
-            <Text style={styles.stepsValue}>8,193 steps</Text>
-            <Text style={styles.stepsDetail}>6 km, 356 kcal</Text>
-
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBarBackground}>
-                <View style={[styles.progressBarFill, { width: "70%" }]} />
+              <View style={styles.greetingContainer}>
+                <Text style={styles.greeting}>Good Morning, Anna!</Text>
+                <Text style={styles.subheader}>
+                  Take a look at your current trackers
+                </Text>
               </View>
-            </View>
-          </View>
 
-          <TouchableOpacity style={styles.addActivityBtn} activeOpacity={0.8}>
-            <Plus width={30} height={30} />
-          </TouchableOpacity>
-
-          <Text style={styles.addActivityText}>Add activity</Text>
-        </View>
-
-        <View style={styles.diarySection}>
-          <View style={styles.diaryHeader}>
-            <View style={styles.diaryBox}>
-              <Text style={styles.diaryTitle}>MindSpark Diary</Text>
-              <View style={styles.iconWrapper}>
-                <Diary width={20} height={20} />
+              <View style={styles.sparkContainer}>
+                <View style={styles.ringInner}>
+                  <MetricCircle
+                    svgComponent={StressCircle}
+                    value="25%"
+                    label="STRESS"
+                    circleSize={100}
+                    valueFontSize={20}
+                  />
+                  <MetricCircle
+                    svgComponent={SparkCircle}
+                    value="75"
+                    label="SPARK"
+                    circleSize={140}
+                    valueFontSize={36}
+                    isLarge
+                  />
+                  <MetricCircle
+                    svgComponent={ActivityCircle}
+                    value="46%"
+                    label="ACTIVITY"
+                    circleSize={100}
+                    valueFontSize={20}
+                  />
+                </View>
               </View>
             </View>
 
-            <Text style={styles.diarySubtitle}>
-              Write down and analyze your thoughts and observations together with
-              MindSpark AI!
-            </Text>
-          </View>
+            <View style={styles.adviceCard}>
+              <View style={styles.adviceBox}>
+                <Text style={styles.adviceTitle}>Advice of the day</Text>
+                <View style={styles.iconWrapper}>
+                  <Magic1 width={20} height={20} />
+                </View>
+              </View>
 
-          <TouchableOpacity style={styles.monthButtonWrapper} activeOpacity={0.8}>
-            <View style={styles.monthButton}>
-              <Text style={styles.month}>FEBRUARY</Text>
+              <Text style={styles.adviceText}>
+                Is stress at its peak? Choose a quiet place for a break at 3 p.m.
+              </Text>
             </View>
-          </TouchableOpacity>
 
-          <View style={styles.calendar}>
-            <View style={styles.daysRow}>
-              {[8, 9, 10, 11, 12].map((day) => (
-                <TouchableOpacity
-                  key={day}
-                  style={[styles.dayBtn, day === 10 && styles.selectedDay]}
-                  activeOpacity={0.8}
-                >
-                  <Text
-                    style={[
-                      styles.dayText,
-                      day === 10 && styles.selectedDayText,
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                </TouchableOpacity>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Today's activities</Text>
+
+              {activitiesData.map((item, i) => (
+                <View key={i} style={styles.activityItem}>
+                  <View style={styles.iconBox}>
+                    <item.svg width={35} height={35} />
+                  </View>
+
+                  <View style={styles.activityInfo}>
+                    <Text style={styles.activityLabel}>{item.label}</Text>
+                    <View style={styles.valueContainer}>
+                      <Text style={styles.activityValue}>{item.value}</Text>
+                      <Text style={styles.activityGoal}>{item.goal}</Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity style={styles.plusBtn} activeOpacity={0.8}>
+                    <item.unit width={25} height={25} />
+                  </TouchableOpacity>
+                </View>
               ))}
             </View>
-          </View>
 
-          <View style={styles.noteInput}>
-            <TextInput
-              placeholder="Add note"
-              placeholderTextColor="#888"
-              multiline
-              numberOfLines={3}
-              style={styles.noteInputText}
-            />
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-    </LinearGradient >
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Measurements</Text>
+                <TouchableOpacity activeOpacity={0.8}>
+                  <Text style={styles.moreLink}>More</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.measurementCard}>
+                <Text style={styles.measureLabel}>WEIGHT</Text>
+                <Text style={styles.measureGoal}>Goal: 57.0 kg</Text>
+
+                <View style={styles.weightRow}>
+                  <TouchableOpacity activeOpacity={0.8}>
+                    <Minus />
+                  </TouchableOpacity>
+                  <Text style={styles.weightValue}>53.4 kg</Text>
+                  <TouchableOpacity activeOpacity={0.8}>
+                    <Plus />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Activities</Text>
+                <TouchableOpacity activeOpacity={0.8}>
+                  <Text style={styles.moreLink}>More</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.activitySummary}>
+                <Text style={styles.stepsValue}>8,193 steps</Text>
+                <Text style={styles.stepsDetail}>6 km, 356 kcal</Text>
+
+                <View style={styles.progressContainer}>
+                  <View style={styles.progressBarBackground}>
+                    <View style={[styles.progressBarFill, { width: "70%" }]} />
+                  </View>
+                </View>
+              </View>
+
+              <TouchableOpacity style={styles.addActivityBtn} activeOpacity={0.8}>
+                <Plus width={30} height={30} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.diarySection}>
+              <View style={styles.diaryHeader}>
+                <View style={styles.diaryBox}>
+                  <Text style={styles.diaryTitle}>MindSpark Diary</Text>
+                  <View style={styles.iconWrapper}>
+                    <Diary width={20} height={20} />
+                  </View>
+                </View>
+
+                <Text style={styles.diarySubtitle}>
+                  Write down and analyze your thoughts and observations together with
+                  MindSpark AI!
+                </Text>
+              </View>
+
+              <TouchableOpacity style={styles.monthButtonWrapper} activeOpacity={0.8}>
+                <View style={styles.monthButton}>
+                  <Text style={styles.month}>FEBRUARY</Text>
+                </View>
+              </TouchableOpacity>
+
+              <View style={styles.calendar}>
+                <View style={styles.daysRow}>
+                  {[8, 9, 10, 11, 12].map((day) => (
+                    <TouchableOpacity
+                      key={day}
+                      style={[styles.dayBtn, day === 10 && styles.selectedDay]}
+                      activeOpacity={0.8}
+                    >
+                      <Text
+                        style={[
+                          styles.dayText,
+                          day === 10 && styles.selectedDayText,
+                        ]}
+                      >
+                        {day}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.noteInput}>
+                <TextInput
+                  placeholder="Add note"
+                  placeholderTextColor="#888"
+                  multiline
+                  numberOfLines={3}
+                  style={styles.noteInputText}
+                  value={note}
+                  onChangeText={setNote}
+                  onFocus={() => {
+                    setIsFocused(true);
+                    setTimeout(() => {
+                      scrollRef.current?.scrollToEnd({ animated: true });
+                    }, 300);
+                  }}
+                  onBlur={() => setIsFocused(false)}
+                />
+                {isFocused && (
+                  <TouchableOpacity
+                    style={[
+                      styles.sendButton,
+                      { backgroundColor: note.trim() ? "#C7FF10" : "rgba(255,255,255,0.2)" }
+                    ]}
+                    activeOpacity={0.8}
+                  >
+                    <Text
+                      style={[
+                        styles.sendText,
+                        { color: note.trim() ? "#000" : "#999" }
+                      ]}
+                    >
+                      Send
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
@@ -397,7 +400,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#141414",
   },
   content: {
     paddingBottom: 80,
@@ -526,6 +528,8 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
   },
   adviceCard: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     marginHorizontal: 20,
     marginTop: 10,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -622,6 +626,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   measurementCard: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 20,
     padding: 40,
@@ -653,6 +659,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   activitySummary: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 16,
     padding: 40,
@@ -688,8 +696,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   addActivityBtn: {
-    width: 100,
-    height: 100,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    width: 80,
+    height: 80,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -697,13 +707,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 16,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
-  },
-  addActivityText: {
-    color: "rgba(251, 248, 239, 0.6)",
-    marginLeft: 8,
-    fontFamily: "Montserrat-Regular",
-    fontSize: 14,
-    marginTop: 5,
   },
   diarySection: {
     marginTop: 20,
@@ -734,6 +737,8 @@ const styles = StyleSheet.create({
     paddingRight: 1,
   },
   calendar: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 16,
     padding: 16,
@@ -785,6 +790,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   noteInput: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
     marginTop: 16,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 16,
@@ -793,13 +800,22 @@ const styles = StyleSheet.create({
   },
   noteInputText: {
     fontFamily: "Montserrat-Regular",
-    fontSize: 14,
+    fontSize: 12,
     color: "#FBF8EF",
     minHeight: 80,
   },
-  cloudIcon: {
+  sendButton: {
     position: "absolute",
-    right: 16,
-    bottom: 16,
+    right: 12,
+    bottom: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sendText: {
+    fontFamily: "Montserrat-SemiBold",
+    fontSize: 12,
   },
 });

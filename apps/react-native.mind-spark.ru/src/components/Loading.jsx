@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
-import StarIcon from "@assets/images/IconsMainScreen/Star.svg";
+import Star from "@assets/images/IconsMainScreen/Star.svg";
 
 const Loading = ({ visible = true }) => {
   const shadowOpacityAnim = useRef(new Animated.Value(0.3)).current;
@@ -76,7 +76,7 @@ const Loading = ({ visible = true }) => {
               },
             ]}
           >
-            <StarIcon width={100} height={100} />
+            <Star width={100} height={100} />
           </Animated.View>
         </Animated.View>
       </View>

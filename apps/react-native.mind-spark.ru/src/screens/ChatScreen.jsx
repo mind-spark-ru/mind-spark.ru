@@ -18,7 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAppFonts } from "@/hooks/useAppFonts";
 
 import Magic1 from "@assets/images/IconsMainScreen/Magic1.svg";
-import Square from "@assets/images/IconsMainScreen/Square.svg";
+import Square from "@assets/images/IconsChatScreen/Square.svg";
 
 import BottomNavigation from "@/components/BottomNavigation";
 
@@ -28,7 +28,7 @@ export default function ChatScreen() {
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [isDeepActive, setIsDeepActive] = useState(false);
-    
+
     const [message, setMessage] = useState("");
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 

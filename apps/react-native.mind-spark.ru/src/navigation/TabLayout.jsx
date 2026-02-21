@@ -21,7 +21,7 @@ export default function TabLayout() {
       <Tab.Screen name="Stats" component={SoonScreen} />
       <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="Friends" component={SoonScreen} />
-      <Tab.Screen name="Settings" component={SoonScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
