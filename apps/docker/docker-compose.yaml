@@ -96,6 +96,25 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+  
+  nginx:
+    build:
+      context: ../
+      dockerfile: docker/nginx.Dockerfile
+    container_name: mindspark-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - ml
+      - react
+    restart: unless-stopped
+    networks:
+      - app-network
+
 
 volumes:
   postgres_data:
