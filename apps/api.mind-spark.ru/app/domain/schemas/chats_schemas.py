@@ -5,3 +5,8 @@ class ConversationBase(Base):
     question: str
     answer: str
     user_id: int
+
+class ConversationCreate(Base):
+    question: str
+    answer: str
+    email: str
