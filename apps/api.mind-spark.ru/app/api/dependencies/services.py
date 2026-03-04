@@ -5,6 +5,7 @@ from app.db.session import get_db
 from app.services.googleoauth_service import GoogleoauthService
 from app.services.session_service import SessionService
 from app.services.user_service import UserService
+from app.services.chat_service import ChatService
 
 
 def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
@@ -17,3 +18,7 @@ def get_session_service(db: AsyncSession = Depends(get_db)) -> SessionService:
 
 def get_googleoauth_service() -> GoogleoauthService:
     return GoogleoauthService()
+
+def get_chat_service(db: AsyncSession = Depends(get_db))-> ChatService:
+    return ChatService(db)
+
