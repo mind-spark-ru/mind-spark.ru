@@ -10,6 +10,7 @@ import RegScreen from "@/screens/Auth/RegScreen";
 import ErrorScreen from "@/screens/ErrorScreen";
 import SoonScreen from "@/screens/SoonScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
+import TabLayout from "@/navigation/TabLayout";
 
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +24,7 @@ function AppNavigator() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Code" component={CodeScreen} />
         <Stack.Screen name="GoogleLogin" component={GoogleLoginScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="App" component={TabLayout} />
         <Stack.Screen name="Error" component={ErrorScreen} />
         <Stack.Screen name="Soon" component={SoonScreen} />
       </Stack.Navigator>

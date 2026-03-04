@@ -134,6 +134,14 @@ function RegScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Loading visible={isLoading} />
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={handleGoBackPress}
+        disabled={isLoading}
+        activeOpacity={0.8}
+      >
+        <BackButtonIcon />
+      </TouchableOpacity>
 
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
@@ -145,14 +153,6 @@ function RegScreen({ navigation }) {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={handleGoBackPress}
-                disabled={isLoading}
-                activeOpacity={0.8}
-              >
-                <BackButtonIcon />
-              </TouchableOpacity>
 
               <View style={styles.header}>
                 <LogoSpark />
@@ -282,9 +282,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: -58,
-    left: 5,
-    zIndex: 20,
+    top: 60,
+    left: 20,
+    zIndex: 100,
   },
   header: {
     alignItems: "center",
