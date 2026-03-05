@@ -84,6 +84,7 @@ services:
       - ../react-native.mind-spark.ru/src:/app/src
     environment:
       - EXPO_DEBUG=true
+      - REACT_NATIVE_PACKAGER_HOSTNAME=mind-spark.ru
     stdin_open: true
     tty: true
     command: >
