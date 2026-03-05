@@ -1,4 +1,5 @@
 const host = window.location.hostname;
-
-export const API_URL = `http://${host}:8000`;
-export const REACT_URL = `http://${host}:3000`;
+export const API_URL = `http://mind-spark.ru:8000`;
+export const REACT_URL = `http://mind-spark.ru:3000`;
+export const API_URL_dev = `http://${host}:8000`;
+export const REACT_URL_dev = `http://${host}:3000`;
