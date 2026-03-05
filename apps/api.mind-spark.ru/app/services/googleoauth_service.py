@@ -13,7 +13,7 @@ class GoogleoauthService:
     def generate_google_oauth_redirect_uri(self) -> str:
         base_uri = "https://accounts.google.com/o/oauth2/v2/auth"
         query_params = {
-            "redirect_uri": "http://localhost:3000/auth/google",
+            "redirect_uri": "http://mind-spark.ru:3000/auth/google",
             "client_id": f"{settings.OAUTH_GOOGLE_CLIENT_ID}",
             "response_type": "code",
             "scope": "openid profile email",
@@ -30,7 +30,7 @@ class GoogleoauthService:
                     "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,
                     "client_secret": settings.OAUTH_GOOGLE_CLIENT_SECRET,
                     "grant_type": "authorization_code",
-                    "redirect_uri": "http://localhost:3000/auth/google",
+                    "redirect_uri": "http://mind-spark.ru:3000/auth/google",
                     "code": code,
                 },
                 ssl=False,
