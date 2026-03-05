@@ -3,16 +3,16 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Pen from "@assets/images/IconsSettingsScreen/Pencil.svg";
-import ProfileIcon from "@assets/images/IconsSettingsScreen/ProfileIcon.svg";
-import Goal from "@assets/images/IconsSettingsScreen/Goal.svg";
-import Premium from "@assets/images/IconsSettingsScreen/Premium.svg";
-import Privacy from "@assets/images/IconsSettingsScreen/Privacy.svg";
-import Bell from "@assets/images/IconsSettingsScreen/Bell.svg";
-import Globe from "@assets/images/IconsSettingsScreen/Globe.svg";
-import Info from "@assets/images/IconsSettingsScreen/Info.svg";
-import Help from "@assets/images/IconsSettingsScreen/Help.svg";
-import Arrow from "@assets/images/IconsSettingsScreen/Arrow.svg";
+import Pen from "../../assets/images/IconsSettingsScreen/Pencil.svg";
+import ProfileIcon from "../../assets/images/IconsSettingsScreen/ProfileIcon.svg";
+import Goal from "../../assets/images/IconsSettingsScreen/Goal.svg";
+import Premium from "../../assets/images/IconsSettingsScreen/Premium.svg";
+import Privacy from "../../assets/images/IconsSettingsScreen/Privacy.svg";
+import Bell from "../../assets/images/IconsSettingsScreen/Bell.svg";
+import Globe from "../../assets/images/IconsSettingsScreen/Globe.svg";
+import Info from "../../assets/images/IconsSettingsScreen/Info.svg";
+import Help from "../../assets/images/IconsSettingsScreen/Help.svg";
+import Arrow from "../../assets/images/IconsSettingsScreen/Arrow.svg";
 
 function SettingsRow({ title, Icon, onPress, style }) {
   return (

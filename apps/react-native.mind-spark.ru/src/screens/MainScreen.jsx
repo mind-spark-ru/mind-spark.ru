@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Logotype from "@assets/images/Logotype.js";
-import Loading from "@components/Loading.jsx";
-import { useAppFonts } from "@/hooks/useAppFonts";
+import Logotype from "../../assets/images/Logotype.js";
+import Loading from "../components/Loading.jsx";
+import { useAppFonts } from "../hooks/useAppFonts";
 
 function MainScreen({ navigation }) {
   const { fontsLoaded } = useAppFonts();
@@ -26,7 +26,7 @@ function MainScreen({ navigation }) {
       try {
         const token = await AsyncStorage.getItem("auth_token");
         if (token) {
-          navigation.navigate("Profile");
+          navigation.navigate("App", { screen: "Profile" });
           return;
         }
       } catch (error) {
@@ -42,7 +42,7 @@ function MainScreen({ navigation }) {
 
   return (
     <ImageBackground
-      source={require("@assets/images/Main_screen.png")}
+      source={require("../../assets/images/Main_screen.png")}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -69,7 +69,7 @@ function MainScreen({ navigation }) {
           activeOpacity={0.8}
         >
           <Image
-            source={require("@assets/images/browsers/Yandex.png")}
+            source={require("../../assets/images/browsers/Yandex.png")}
             style={styles.socialIcon}
           />
           <Text style={styles.socialText}>Continue with Yandex</Text>
@@ -82,7 +82,7 @@ function MainScreen({ navigation }) {
           activeOpacity={0.8}
         >
           <Image
-            source={require("@assets/images/browsers/Google.png")}
+            source={require("../../assets/images/browsers/Google.png")}
             style={styles.socialIcon}
           />
           <Text style={styles.socialText}>Continue with Google</Text>

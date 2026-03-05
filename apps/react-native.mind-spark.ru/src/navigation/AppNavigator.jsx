@@ -2,15 +2,15 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import MainScreen from "@/screens/MainScreen";
-import CodeScreen from "@/screens/Auth/CodeScreen";
-import GoogleLoginScreen from "@/screens/Auth/GoogleLoginScreen";
-import LoginScreen from "@/screens/Auth/LoginScreen";
-import RegScreen from "@/screens/Auth/RegScreen";
-import ErrorScreen from "@/screens/ErrorScreen";
-import SoonScreen from "@/screens/SoonScreen";
-import ProfileScreen from "@/screens/ProfileScreen";
-import TabLayout from "@/navigation/TabLayout";
+import MainScreen from "../screens/MainScreen";
+import CodeScreen from "../screens/Auth/CodeScreen";
+import GoogleLoginScreen from "../screens/Auth/GoogleLoginScreen";
+import LoginScreen from "../screens/Auth/LoginScreen";
+import RegScreen from "../screens/Auth/RegScreen";
+import ErrorScreen from "../screens/ErrorScreen";
+import SoonScreen from "../screens/SoonScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import TabLayout from "./TabLayout";
 
 
 const Stack = createNativeStackNavigator();

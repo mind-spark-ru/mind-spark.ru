@@ -3,9 +3,9 @@ import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import CustomAlert from "@/components/CustomAlert";
-import Loading from "@/components/Loading";
-import { API_URL, REACT_URL } from "@./config";
+import CustomAlert from "../../components/CustomAlert";
+import Loading from "../../components/Loading";
+import { API_URL, REACT_URL } from "../../../config";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -72,7 +72,7 @@ function GoogleLoginScreen({ navigation }) {
             if (token) {
               await AsyncStorage.setItem("auth_token", token);
               await AsyncStorage.setItem("user_email", email);
-              navigation.navigate("Profile");
+              navigation.navigate("App", { screen: "Profile" });
               return;
             }
 

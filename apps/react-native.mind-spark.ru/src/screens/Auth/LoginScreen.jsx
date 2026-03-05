@@ -14,15 +14,15 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import EyeClosedIcon from "@assets/images/Password/Eye-close.svg";
-import EyeOpenIcon from "@assets/images/Password/Eye-open.svg";
-import BackButtonIcon from "@assets/images/BackButton.svg";
-import LogoSpark from "@assets/images/LogoSpark.svg";
+import EyeClosedIcon from "../../../assets/images/Password/Eye-close.svg";
+import EyeOpenIcon from "../../../assets/images/Password/Eye-open.svg";
+import BackButtonIcon from "../../../assets/images/BackButton.svg";
+import LogoSpark from "../../../assets/images/LogoSpark.svg";
 
-import CustomAlert from "@components/CustomAlert.jsx";
-import Loading from "@components/Loading.jsx";
-import { API_URL } from "@./config";
-import { useAppFonts } from "@/hooks/useAppFonts";
+import CustomAlert from "../../components/CustomAlert.jsx";
+import Loading from "../../components/Loading.jsx";
+import { API_URL } from "../../../config";
+import { useAppFonts } from "../../hooks/useAppFonts";
 
 function LoginScreen({ navigation }) {
   const { fontsLoaded } = useAppFonts();
@@ -76,7 +76,7 @@ function LoginScreen({ navigation }) {
         if (token) {
           await AsyncStorage.setItem("auth_token", token);
           await AsyncStorage.setItem("user_email", email);
-          navigation.navigate("Profile");
+          navigation.navigate("App", { screen: "Profile" });
         } else {
           showAlert("Authorization token not found");
         }

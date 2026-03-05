@@ -10,13 +10,13 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import BackButtonIcon from "@assets/images/BackButton.svg";
-import LogoSpark from "@assets/images/LogoSpark.svg";
+import BackButtonIcon from "../../../assets/images/BackButton.svg";
+import LogoSpark from "../../../assets/images/LogoSpark.svg";
 
-import CustomAlert from "@components/CustomAlert.jsx";
-import Loading from "@components/Loading.jsx";
-import { API_URL } from "@./config";
-import { useAppFonts } from "@/hooks/useAppFonts";
+import CustomAlert from "../../components/CustomAlert.jsx";
+import Loading from "../../components/Loading.jsx";
+import { API_URL } from "../../../config";
+import { useAppFonts } from "../../hooks/useAppFonts";
 
 function CodeScreen({ route, navigation }) {
   const email = route.params?.email;
@@ -136,7 +136,7 @@ function CodeScreen({ route, navigation }) {
             if (token) {
               await AsyncStorage.setItem("auth_token", token);
               await AsyncStorage.setItem("user_email", email);
-              navigation.navigate("Profile");
+              navigation.navigate("App", { screen: "Profile" });
             } else {
               showAlert("Authorization token not found");
             }

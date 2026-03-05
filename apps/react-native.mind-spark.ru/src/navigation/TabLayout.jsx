@@ -1,13 +1,13 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import BottomNavigation from "@/components/BottomNavigation";
+import BottomNavigation from "../components/BottomNavigation";
 
-import ProfileScreen from "@/screens/ProfileScreen";
-import ChatScreen from "@/screens/ChatScreen";
-import SettingsScreen from "@/screens/SettingsScreen";
-import StatsScreen from "@/screens/StatsScreen";
-import FriendsScreen from "@/screens/FriendsScreen";
-import SoonScreen from "@/screens/SoonScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import ChatScreen from "../screens/ChatScreen";
+import SettingsScreen from "../screens/SettingsScreen";
+import StatsScreen from "../screens/StatsScreen";
+import FriendsScreen from "../screens/FriendsScreen";
+import SoonScreen from "../screens/SoonScreen";
 
 const Tab = createBottomTabNavigator();
 

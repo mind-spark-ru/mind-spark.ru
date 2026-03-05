@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import IconAlert from "@assets/images/Icon_alert.svg";
+import IconAlert from "../../assets/images/Icon_alert.svg";
 
 function CustomAlert({ visible, message, onClose }) {
   if (!visible) return null;

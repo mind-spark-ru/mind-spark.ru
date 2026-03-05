@@ -13,27 +13,27 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
-import Loading from "@/components/Loading";
-import { useAppFonts } from "@/hooks/useAppFonts";
+import Loading from "../components/Loading";
+import { useAppFonts } from "../hooks/useAppFonts";
 
-import Avatar from "@assets/images/IconsMainScreen/Avatar.svg";
-import Watch from "@assets/images/IconsMainScreen/Watch.svg";
+import Avatar from "../../assets/images/IconsMainScreen/Avatar.svg";
+import Watch from "../../assets/images/IconsMainScreen/Watch.svg";
 
-import ActivityCircle from "@assets/images/IconsMainScreen/Circles/ActivityCircle.svg";
-import SparkCircle from "@assets/images/IconsMainScreen/Circles/SparkCircle.svg";
-import StressCircle from "@assets/images/IconsMainScreen/Circles/StressCircle.svg";
+import ActivityCircle from "../../assets/images/IconsMainScreen/Circles/ActivityCircle.svg";
+import SparkCircle from "../../assets/images/IconsMainScreen/Circles/SparkCircle.svg";
+import StressCircle from "../../assets/images/IconsMainScreen/Circles/StressCircle.svg";
 
-import Diary from "@assets/images/IconsMainScreen/Diary.svg";
-import Magic1 from "@assets/images/IconsMainScreen/Magic1.svg";
-import Minus from "@assets/images/IconsMainScreen/Minus.svg";
-import Plus from "@assets/images/IconsMainScreen/Plus.svg";
+import Diary from "../../assets/images/IconsMainScreen/Diary.svg";
+import Magic1 from "../../assets/images/IconsMainScreen/Magic1.svg";
+import Minus from "../../assets/images/IconsMainScreen/Minus.svg";
+import Plus from "../../assets/images/IconsMainScreen/Plus.svg";
 
-import Calories from "@assets/images/IconsMainScreen/Trackers/Calories.svg";
-import PlusMini from "@assets/images/IconsMainScreen/Trackers/PlusMini.svg";
-import Pulse from "@assets/images/IconsMainScreen/Trackers/Pulse.svg";
-import Sleep from "@assets/images/IconsMainScreen/Trackers/Sleep.svg";
-import Steps from "@assets/images/IconsMainScreen/Trackers/Steps.svg";
-import Water from "@assets/images/IconsMainScreen/Trackers/Water.svg";
+import Calories from "../../assets/images/IconsMainScreen/Trackers/Calories.svg";
+import PlusMini from "../../assets/images/IconsMainScreen/Trackers/PlusMini.svg";
+import Pulse from "../../assets/images/IconsMainScreen/Trackers/Pulse.svg";
+import Sleep from "../../assets/images/IconsMainScreen/Trackers/Sleep.svg";
+import Steps from "../../assets/images/IconsMainScreen/Trackers/Steps.svg";
+import Water from "../../assets/images/IconsMainScreen/Trackers/Water.svg";
 
 function ProfileScreen({ navigation }) {
   const { fontsLoaded } = useAppFonts();

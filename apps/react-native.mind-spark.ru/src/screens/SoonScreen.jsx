@@ -18,7 +18,7 @@ function SoonScreen({ navigation }) {
       <StatusBar barStyle="light-content" />
 
       <ImageBackground
-        source={require("@assets/images/Error_screen.png")}
+        source={require("../../assets/images/Error_screen.png")}
         style={styles.background}
         resizeMode="cover"
       >

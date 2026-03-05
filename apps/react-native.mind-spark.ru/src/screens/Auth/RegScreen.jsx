@@ -13,15 +13,15 @@ import {
   Platform,
 } from "react-native";
 
-import EyeClosedIcon from "@assets/images/Password/Eye-close.svg";
-import EyeOpenIcon from "@assets/images/Password/Eye-open.svg";
-import BackButtonIcon from "@assets/images/BackButton.svg";
-import LogoSpark from "@assets/images/LogoSpark.svg";
+import EyeClosedIcon from "../../../assets/images/Password/Eye-close.svg";
+import EyeOpenIcon from "../../../assets/images/Password/Eye-open.svg";
+import BackButtonIcon from "../../../assets/images/BackButton.svg";
+import LogoSpark from "../../../assets/images/LogoSpark.svg";
 
-import CustomAlert from "@components/CustomAlert.jsx";
-import Loading from "@components/Loading.jsx";
-import { API_URL } from "@./config";
-import { useAppFonts } from "@/hooks/useAppFonts";
+import CustomAlert from "../../components/CustomAlert.jsx";
+import Loading from "../../components/Loading.jsx";
+import { API_URL } from "../../../config";
+import { useAppFonts } from "../../hooks/useAppFonts";
 
 function RegScreen({ navigation }) {
   const { fontsLoaded } = useAppFonts();

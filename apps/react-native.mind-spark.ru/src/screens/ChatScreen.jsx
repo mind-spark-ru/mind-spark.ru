@@ -15,12 +15,12 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useAppFonts } from "@/hooks/useAppFonts";
+import { useAppFonts } from "../hooks/useAppFonts";
 
-import Magic1 from "@assets/images/IconsMainScreen/Magic1.svg";
-import Square from "@assets/images/IconsChatScreen/Square.svg";
+import Magic1 from "../../assets/images/IconsMainScreen/Magic1.svg";
+import Square from "../../assets/images/IconsChatScreen/Square.svg";
 
-import BottomNavigation from "@/components/BottomNavigation";
+import BottomNavigation from "../components/BottomNavigation";
 
 
 export default function ChatScreen() {

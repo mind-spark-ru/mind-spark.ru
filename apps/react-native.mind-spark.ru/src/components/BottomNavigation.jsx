@@ -7,11 +7,11 @@ import {
   Dimensions,
 } from "react-native";
 
-import Home from "@assets/images/IconsBottomNavigation/Home.svg";
-import Stats from "@assets/images/IconsBottomNavigation/Stats.svg";
-import Star from "@assets/images/IconsBottomNavigation/Star.svg";
-import Friends from "@assets/images/IconsBottomNavigation/Friends.svg";
-import Setting from "@assets/images/IconsBottomNavigation/Setting.svg";
+import Home from "../../assets/images/IconsBottomNavigation/Home.svg";
+import Stats from "../../assets/images/IconsBottomNavigation/Stats.svg";
+import Star from "../../assets/images/IconsBottomNavigation/Star.svg";
+import Friends from "../../assets/images/IconsBottomNavigation/Friends.svg";
+import Setting from "../../assets/images/IconsBottomNavigation/Setting.svg";
 
 const { width } = Dimensions.get("window");
 const TAB_WIDTH = width / 5;
