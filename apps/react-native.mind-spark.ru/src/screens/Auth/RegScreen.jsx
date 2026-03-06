@@ -58,15 +58,15 @@ function RegScreen({ navigation }) {
         }
       );
 
-      await response.json();
-      if (response.success) {
+      const data = await response.json();
+      if (response.ok && data?.success) {
         navigation.navigate("Code", {
           email,
           username,
           password,
         });
       } else {
-        showAlert("Error sending code");
+        showAlert(data?.message || data?.detail || "Error sending code");
         setIsLoading(false);
       }
     } catch (error) {

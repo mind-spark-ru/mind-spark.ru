@@ -18,7 +18,17 @@
     "scheme": "mindspark",
     "ios": {
       "bundleIdentifier": "ru.mind-spark.mindspark",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSExceptionDomains": {
+            "mind-spark.ru": {
+              "NSIncludesSubdomains": true,
+              "NSExceptionAllowsInsecureHTTPLoads": true
+            }
+          }
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {

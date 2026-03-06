@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Pen from "../../assets/images/IconsSettingsScreen/Pencil.svg";
 import ProfileIcon from "../../assets/images/IconsSettingsScreen/ProfileIcon.svg";
@@ -36,7 +37,15 @@ function SettingsRow({ title, Icon, onPress, style }) {
   );
 }
 
-export default function SettingsScreen() {
+export default function SettingsScreen({ navigation }) {
+  const handleLogout = async () => {
+    await AsyncStorage.multiRemove(["auth_token", "user_email"]);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Main" }],
+    });
+  };
+
   const items = [
     { key: "update", title: "Update details", Icon: Pen, onPress: () => console.log("Update details") },
     { key: "account", title: "Account", Icon: ProfileIcon, onPress: () => console.log("Account") },
@@ -70,6 +79,16 @@ export default function SettingsScreen() {
               />
             ))}
           </View>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={handleLogout}
+            style={styles.logoutButton}
+            accessibilityRole="button"
+            accessibilityLabel="Logout"
+          >
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
 
           <View style={{ height: 28 }} />
         </ScrollView>
@@ -131,5 +150,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 12,
     fontFamily: "Montserrat-Regular",
+  },
+
+  logoutButton: {
+    marginTop: 24,
+    width: "100%",
+    minHeight: 54,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(199,255,16,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(199,255,16,0.55)",
+  },
+
+  logoutText: {
+    color: "#C7FF10",
+    fontSize: 14,
+    fontFamily: "Montserrat-SemiBold",
   },
 });
