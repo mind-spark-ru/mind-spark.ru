@@ -23,8 +23,9 @@ import Magic1 from "../../assets/images/IconsMainScreen/Magic1.svg";
 import Square from "../../assets/images/IconsChatScreen/Square.svg";
 
 import BottomNavigation from "../components/BottomNavigation";
+import { ML_URL, ML_URL } from "config";
 
-const API_URL = "http://localhost:8001/v1/ml/predict";
+const ML_URL = ML_URL + "/v1/ml/predict";
 const STORAGE_KEY = "@chat_messages";
 
 export default function ChatScreen() {
@@ -154,7 +155,7 @@ export default function ChatScreen() {
         setCurrentAiMessage("");
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(ML_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
