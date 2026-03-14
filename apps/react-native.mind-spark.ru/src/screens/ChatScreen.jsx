@@ -155,22 +155,36 @@ export default function ChatScreen() {
     setCurrentAiMessage("");
 
     try {
-        // Используем URL с query параметром, как в curl
         const response = await fetch(`${PREDICT_URL}?text=${encodeURIComponent(userMessageText)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            // Тело не нужно, так как текст в URL
         });
 
         if (!response.ok) throw new Error("Network response was not ok");
 
-        // Получаем полный текст ответа
-        const aiResponseText = await response.text();
-        setCurrentAiMessage(aiResponseText);
-        
-        // Save complete AI message
+        // Получаем reader для стриминга
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let aiResponseText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            // Декодируем чанк и добавляем к текущему тексту
+            const chunk = decoder.decode(value, { stream: true });
+            aiResponseText += chunk;
+            
+            // Обновляем UI с каждым новым токеном
+            setCurrentAiMessage(aiResponseText);
+            
+            // Прокручиваем вниз при каждом обновлении
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }
+
+        // Сохраняем полное сообщение в историю
         const aiMessage = {
             id: (Date.now() + 1).toString(),
             type: "ai",
