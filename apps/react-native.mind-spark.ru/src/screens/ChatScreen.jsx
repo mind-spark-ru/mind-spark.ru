@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
     View,
     Text,
@@ -10,11 +10,13 @@ import {
     Keyboard,
     Animated,
     Easing,
+    ActivityIndicator,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAppFonts } from "../hooks/useAppFonts";
 
 import Magic1 from "../../assets/images/IconsMainScreen/Magic1.svg";
@@ -22,21 +24,58 @@ import Square from "../../assets/images/IconsChatScreen/Square.svg";
 
 import BottomNavigation from "../components/BottomNavigation";
 
+const API_URL = "http://localhost:8001/v1/ml/predict";
+const STORAGE_KEY = "@chat_messages";
 
 export default function ChatScreen() {
     const { fontsLoaded } = useAppFonts();
 
-    const [isSearchActive, setIsSearchActive] = useState(false);
-    const [isDeepActive, setIsDeepActive] = useState(false);
-
+    const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [currentAiMessage, setCurrentAiMessage] = useState("");
+
+    const [isSearchActive, setIsSearchActive] = useState(false);
+    const [isDeepActive, setIsDeepActive] = useState(false);
 
     const scrollViewRef = useRef(null);
     const translateY = useRef(new Animated.Value(0)).current;
     const headerOpacity = useRef(new Animated.Value(1)).current;
 
-    const [isSending, setIsSending] = useState(false);
+    // Load messages from AsyncStorage
+    useEffect(() => {
+        loadMessages();
+    }, []);
+
+    const loadMessages = async () => {
+        try {
+            const stored = await AsyncStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                setMessages(JSON.parse(stored));
+            } else {
+                // Welcome message if no history
+                setMessages([
+                    {
+                        id: "welcome",
+                        type: "ai",
+                        text: "Hello! I'm MindSpark AI. How can I help you today?",
+                        timestamp: Date.now(),
+                    },
+                ]);
+            }
+        } catch (error) {
+            console.error("Failed to load messages:", error);
+        }
+    };
+
+    const saveMessages = async (newMessages) => {
+        try {
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newMessages));
+        } catch (error) {
+            console.error("Failed to save messages:", error);
+        }
+    };
 
     useEffect(() => {
         const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -87,16 +126,102 @@ export default function ChatScreen() {
         };
     }, [translateY, headerOpacity]);
 
-    const handleSend = () => {
-        setIsSending((prev) => !prev);
-
-        if (!message.trim()) return;
-
-        console.log("Send:", message);
-        setMessage("");
+    // Auto-scroll when messages change
+    useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, [messages, currentAiMessage]);
+
+    const handleSend = async () => {
+        if (!message.trim() || isLoading) return;
+
+        const userMessageText = message.trim();
+        setMessage("");
+
+        // Add user message
+        const userMessage = {
+            id: Date.now().toString(),
+            type: "user",
+            text: userMessageText,
+            timestamp: Date.now(),
+        };
+
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
+        await saveMessages(updatedMessages);
+
+        // Start AI response
+        setIsLoading(true);
+        setCurrentAiMessage("");
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ text: userMessageText }),
+            });
+
+            if (!response.ok) throw new Error("Network response was not ok");
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let aiResponseText = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                aiResponseText += chunk;
+                setCurrentAiMessage(aiResponseText);
+            }
+
+            // Save complete AI message
+            const aiMessage = {
+                id: (Date.now() + 1).toString(),
+                type: "ai",
+                text: aiResponseText,
+                timestamp: Date.now(),
+            };
+
+            const finalMessages = [...updatedMessages, aiMessage];
+            setMessages(finalMessages);
+            await saveMessages(finalMessages);
+            setCurrentAiMessage("");
+        } catch (error) {
+            console.error("Failed to get AI response:", error);
+            // Add error message
+            const errorMessage = {
+                id: (Date.now() + 1).toString(),
+                type: "ai",
+                text: "Sorry, I'm having trouble connecting. Please try again.",
+                timestamp: Date.now(),
+            };
+            const finalMessages = [...updatedMessages, errorMessage];
+            setMessages(finalMessages);
+            await saveMessages(finalMessages);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    const renderMessage = (msg) => {
+        if (msg.type === "user") {
+            return (
+                <View key={msg.id} style={styles.userBubble}>
+                    <Text style={styles.userText}>{msg.text}</Text>
+                </View>
+            );
+        } else {
+            return (
+                <View key={msg.id}>
+                    <Text style={styles.aiName}>MindSpark AI</Text>
+                    <Text style={styles.aiText}>{msg.text}</Text>
+                </View>
+            );
+        }
+    };
 
     if (!fontsLoaded) return null;
 
@@ -108,7 +233,6 @@ export default function ChatScreen() {
         >
             <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
                 <View style={{ flex: 1 }}>
-
                     <Animated.View
                         style={[
                             styles.headerRow,
@@ -135,79 +259,21 @@ export default function ChatScreen() {
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
                         >
-                            <View style={styles.userBubble}>
-                                <Text style={styles.userText}>
-                                    Hi, Sparky. How was my sleep today? I feel like I was tossing and turning half the night again.
-                                </Text>
-                            </View>
-
-                            <Text style={styles.aiName}>MindSpark AI</Text>
-                            <Text style={styles.aiText}>
-                                Good morning! Analyzing your data from the last 24 hours.
-                            </Text>
-
-                            <Text style={styles.aiText}>
-                                {"\n"}Yes, your sleep was rather light:
-                                {"\n"}
-                                {"\n"}- deep sleep phases made up only 12% of total time instead of the usual 20–25%;
-                                {"\n"}- your nighttime heart rate was 10% higher than average.
-                                {"\n"}
-                                {"\n"}What happened last night? I see you put your phone down at 11:40 PM but fell asleep closer to 1 AM.
-                            </Text>
-
-                            <View style={styles.userBubble}>
-                                <Text style={styles.userText}>
-                                    Seriously, it's that obvious? I just got stuck scrolling on my phone.
-                                </Text>
-                            </View>
-
-                            <Text style={styles.aiName}>MindSpark AI</Text>
-                            <Text style={styles.aiText}>
-                                That explains the data. Blue light suppresses melatonin production, and stressful content raises cortisol levels. The result is "false alertness" in the middle of the night.
-                                {"\n"}
-                                {"\n"}Would you like me to remind you at 10:30 PM today to put your devices away and read a paper book instead?
-                            </Text>
-
-                            <View style={styles.userBubble}>
-                                <Text style={styles.userText}>
-                                    Yeah, let's do that. By the way, why do I feel so exhausted in the morning? I did sleep around 6 hours.
-                                </Text>
-                            </View>
-
-                            <Text style={styles.aiName}>MindSpark AI</Text>
-                            <Text style={styles.aiText}>
-                                It's not just about quantity — quality matters too.
-                                {"\n"}
-                                {"\n"}You woke up at least 4 times (micro-awakenings were detected), even if you don't remember them. That interrupted your sleep cycles. I recommend going to bed earlier tonight — around 10:00 PM.
-                                {"\n"}
-                                {"\n"}By the way, you have a workout scheduled in an hour. Considering the lack of sleep, it would be better to replace strength training with light stretching or a walk to avoid overloading your heart.
-                                {"\n"}
-                                {"\n"}What do you think?
-                            </Text>
-
-                            <View style={styles.userBubble}>
-                                <Text style={styles.userText}>
-                                    Oh, I didn't even think about that. My head does feel heavy. Probably not the best idea to lift weights today. I'll keep that in mind.
-                                </Text>
-                            </View>
-
-                            <Text style={styles.aiName}>MindSpark AI</Text>
-                            <Text style={styles.aiText}>
-                                Great. I've updated your plan: today's recommendation is yoga stretching or low-intensity cardio for 40 minutes.
-                                {"\n"}
-                                {"\n"}Keep your hydration levels under control — your body dehydrates more than usual overnight. Drink a glass of water right now if you haven't already.
-                            </Text>
-
-                            <View style={styles.userBubble}>
-                                <Text style={styles.userText}>
-                                    Already drinking. Thanks, Sparky. You're like a caring doctor.
-                                </Text>
-                            </View>
-
-                            <Text style={styles.aiName}>MindSpark AI</Text>
-                            <Text style={styles.aiText}>
-                                Always here to keep your body and mind in balance. Have a wonderful day!
-                            </Text>
+                            {messages.map(renderMessage)}
+                            
+                            {isLoading && currentAiMessage === "" && (
+                                <View style={styles.loadingContainer}>
+                                    <ActivityIndicator size="small" color="#C7FF10" />
+                                    <Text style={styles.loadingText}>MindSpark is thinking...</Text>
+                                </View>
+                            )}
+                            
+                            {currentAiMessage !== "" && (
+                                <View>
+                                    <Text style={styles.aiName}>MindSpark AI</Text>
+                                    <Text style={styles.aiText}>{currentAiMessage}</Text>
+                                </View>
+                            )}
                         </ScrollView>
 
                         <View style={styles.inputContainer}>
@@ -219,9 +285,14 @@ export default function ChatScreen() {
                                         placeholder="How can I help you?"
                                         placeholderTextColor="#888"
                                         style={styles.input}
+                                        editable={!isLoading}
                                     />
-                                    <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                                        {isSending ? (
+                                    <TouchableOpacity 
+                                        style={[styles.sendButton, isLoading && styles.sendButtonDisabled]} 
+                                        onPress={handleSend}
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
                                             <Square width={16} height={16} />
                                         ) : (
                                             <Ionicons name="arrow-forward" size={20} color="#000" />
@@ -362,6 +433,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
+    sendButtonDisabled: {
+        opacity: 0.5,
+    },
     actionsRow: {
         flexDirection: "row",
         alignItems: "center",
@@ -392,5 +466,15 @@ const styles = StyleSheet.create({
     },
     deepTextActive: {
         color: "#C7FF10",
+    },
+    loadingContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 16,
+        gap: 8,
+    },
+    loadingText: {
+        color: "#7C7C7C",
+        fontSize: 14,
     },
 });
