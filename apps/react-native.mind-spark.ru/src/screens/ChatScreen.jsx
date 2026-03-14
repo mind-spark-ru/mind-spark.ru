@@ -133,79 +133,71 @@ export default function ChatScreen() {
     }, [messages, currentAiMessage]);
 
     const handleSend = async () => {
-        if (!message.trim() || isLoading) return;
+    if (!message.trim() || isLoading) return;
 
-        const userMessageText = message.trim();
-        setMessage("");
+    const userMessageText = message.trim();
+    setMessage("");
 
-        // Add user message
-        const userMessage = {
-            id: Date.now().toString(),
-            type: "user",
-            text: userMessageText,
+    // Add user message
+    const userMessage = {
+        id: Date.now().toString(),
+        type: "user",
+        text: userMessageText,
+        timestamp: Date.now(),
+    };
+
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    await saveMessages(updatedMessages);
+
+    // Start AI response
+    setIsLoading(true);
+    setCurrentAiMessage("");
+
+    try {
+        // Используем URL с query параметром, как в curl
+        const response = await fetch(`${PREDICT_URL}?text=${encodeURIComponent(userMessageText)}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            // Тело не нужно, так как текст в URL
+        });
+
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        // Получаем полный текст ответа
+        const aiResponseText = await response.text();
+        setCurrentAiMessage(aiResponseText);
+        
+        // Save complete AI message
+        const aiMessage = {
+            id: (Date.now() + 1).toString(),
+            type: "ai",
+            text: aiResponseText,
             timestamp: Date.now(),
         };
 
-        const updatedMessages = [...messages, userMessage];
-        setMessages(updatedMessages);
-        await saveMessages(updatedMessages);
-
-        // Start AI response
-        setIsLoading(true);
+        const finalMessages = [...updatedMessages, aiMessage];
+        setMessages(finalMessages);
+        await saveMessages(finalMessages);
         setCurrentAiMessage("");
-
-        try {
-            const response = await fetch(PREDICT_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ text: userMessageText }),
-            });
-
-            if (!response.ok) throw new Error("Network response was not ok");
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let aiResponseText = "";
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value);
-                aiResponseText += chunk;
-                setCurrentAiMessage(aiResponseText);
-            }
-
-            // Save complete AI message
-            const aiMessage = {
-                id: (Date.now() + 1).toString(),
-                type: "ai",
-                text: aiResponseText,
-                timestamp: Date.now(),
-            };
-
-            const finalMessages = [...updatedMessages, aiMessage];
-            setMessages(finalMessages);
-            await saveMessages(finalMessages);
-            setCurrentAiMessage("");
-        } catch (error) {
-            console.error("Failed to get AI response:", error);
-            // Add error message
-            const errorMessage = {
-                id: (Date.now() + 1).toString(),
-                type: "ai",
-                text: "Sorry, I'm having trouble connecting. Please try again.",
-                timestamp: Date.now(),
-            };
-            const finalMessages = [...updatedMessages, errorMessage];
-            setMessages(finalMessages);
-            await saveMessages(finalMessages);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        
+    } catch (error) {
+        console.error("Failed to get AI response:", error);
+        const errorMessage = {
+            id: (Date.now() + 1).toString(),
+            type: "ai",
+            text: "Sorry, I'm having trouble connecting. Please try again.",
+            timestamp: Date.now(),
+        };
+        const finalMessages = [...updatedMessages, errorMessage];
+        setMessages(finalMessages);
+        await saveMessages(finalMessages);
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     const renderMessage = (msg) => {
         if (msg.type === "user") {
