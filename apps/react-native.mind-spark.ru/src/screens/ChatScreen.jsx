@@ -23,7 +23,7 @@ import Magic1 from "../../assets/images/IconsMainScreen/Magic1.svg";
 import Square from "../../assets/images/IconsChatScreen/Square.svg";
 
 import BottomNavigation from "../components/BottomNavigation";
-import { ML_URL, ML_URL } from "config";
+import { ML_URL } from "config";
 
 const ML_URL = ML_URL + "/v1/ml/predict";
 const STORAGE_KEY = "@chat_messages";
