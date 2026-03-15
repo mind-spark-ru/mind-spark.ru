@@ -35,16 +35,16 @@ export default function ChatScreen() {
     const [message, setMessage] = useState("");
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentAiMessage, setCurrentAiMessage] = useState("");
+    const [streamingMessage, setStreamingMessage] = useState("");
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [isDeepActive, setIsDeepActive] = useState(false);
 
     const scrollViewRef = useRef(null);
+    const abortControllerRef = useRef(null);
     const translateY = useRef(new Animated.Value(0)).current;
     const headerOpacity = useRef(new Animated.Value(1)).current;
 
-    // Load messages from AsyncStorage
     useEffect(() => {
         loadMessages();
     }, []);
@@ -55,7 +55,6 @@ export default function ChatScreen() {
             if (stored) {
                 setMessages(JSON.parse(stored));
             } else {
-                // Welcome message if no history
                 setMessages([
                     {
                         id: "welcome",
@@ -127,77 +126,143 @@ export default function ChatScreen() {
         };
     }, [translateY, headerOpacity]);
 
-    // Auto-scroll when messages change
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, [messages, currentAiMessage]);
+    }, [messages, streamingMessage]);
+
+    useEffect(() => {
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
 
     const handleSend = async () => {
-    if (!message.trim() || isLoading) return;
+        if (!message.trim() || isLoading) return;
 
-    const userMessageText = message.trim();
-    setMessage("");
+        const userMessageText = message.trim();
+        setMessage("");
 
-    // Add user message
-    const userMessage = {
-        id: Date.now().toString(),
-        type: "user",
-        text: userMessageText,
-        timestamp: Date.now(),
+        const userMessage = {
+            id: Date.now().toString(),
+            type: "user",
+            text: userMessageText,
+            timestamp: Date.now(),
+        };
+
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
+        await saveMessages(updatedMessages);
+
+        setIsLoading(true);
+        setStreamingMessage("");
+
+        abortControllerRef.current = new AbortController();
+
+        try {
+            const response = await fetch(`${PREDICT_URL}?text=${encodeURIComponent(userMessageText)}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "text/event-stream",
+                },
+                signal: abortControllerRef.current.signal,
+            });
+
+            if (!response.ok) throw new Error("Network response was not ok");
+            if (!response.body) throw new Error("Response body is null");
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedMessage = "";
+            let buffer = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                
+                if (done) {
+                    break;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+                
+                const messages = buffer.split('\n\n');
+                buffer = messages.pop() || "";
+
+                for (const msg of messages) {
+                    const lines = msg.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const token = line.slice(6).trim();
+                            
+                            if (token === '[DONE]') {
+                                continue;
+                            }
+                            
+                            if (token) {
+                                accumulatedMessage += token;
+                                setStreamingMessage(accumulatedMessage);
+                                
+                                await new Promise(resolve => setTimeout(resolve, 5));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (accumulatedMessage) {
+                const aiMessage = {
+                    id: (Date.now() + 1).toString(),
+                    type: "ai",
+                    text: accumulatedMessage,
+                    timestamp: Date.now(),
+                };
+
+                const finalMessages = [...updatedMessages, aiMessage];
+                setMessages(finalMessages);
+                await saveMessages(finalMessages);
+            }
+            
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log('Generation stopped by user');
+                
+                if (streamingMessage) {
+                    const aiMessage = {
+                        id: (Date.now() + 1).toString(),
+                        type: "ai",
+                        text: streamingMessage + "... (stopped)",
+                        timestamp: Date.now(),
+                    };
+                    const finalMessages = [...updatedMessages, aiMessage];
+                    setMessages(finalMessages);
+                    await saveMessages(finalMessages);
+                }
+            } else {
+                console.error("Failed to get AI response:", error);
+                const errorMessage = {
+                    id: (Date.now() + 1).toString(),
+                    type: "ai",
+                    text: "Sorry, I'm having trouble connecting. Please try again.",
+                    timestamp: Date.now(),
+                };
+                const finalMessages = [...updatedMessages, errorMessage];
+                setMessages(finalMessages);
+                await saveMessages(finalMessages);
+            }
+        } finally {
+            setIsLoading(false);
+            setStreamingMessage("");
+            abortControllerRef.current = null;
+        }
     };
 
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    await saveMessages(updatedMessages);
-
-    // Start AI response
-    setIsLoading(true);
-    setCurrentAiMessage("");
-
-    try {
-        // Используем URL с query параметром, как в curl
-        const response = await fetch(`${PREDICT_URL}?text=${encodeURIComponent(userMessageText)}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            // Тело не нужно, так как текст в URL
-        });
-
-        if (!response.ok) throw new Error("Network response was not ok");
-
-        // Получаем полный текст ответа
-        const aiResponseText = await response.text();
-        setCurrentAiMessage(aiResponseText);
-        
-        // Save complete AI message
-        const aiMessage = {
-            id: (Date.now() + 1).toString(),
-            type: "ai",
-            text: aiResponseText,
-            timestamp: Date.now(),
-        };
-
-        const finalMessages = [...updatedMessages, aiMessage];
-        setMessages(finalMessages);
-        await saveMessages(finalMessages);
-        setCurrentAiMessage("");
-        
-    } catch (error) {
-        console.error("Failed to get AI response:", error);
-        const errorMessage = {
-            id: (Date.now() + 1).toString(),
-            type: "ai",
-            text: "Sorry, I'm having trouble connecting. Please try again.",
-            timestamp: Date.now(),
-        };
-        const finalMessages = [...updatedMessages, errorMessage];
-        setMessages(finalMessages);
-        await saveMessages(finalMessages);
-    } finally {
-        setIsLoading(false);
-    }
-};
+    const handleStopGeneration = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+    };
 
     const renderMessage = (msg) => {
         if (msg.type === "user") {
@@ -254,17 +319,20 @@ export default function ChatScreen() {
                         >
                             {messages.map(renderMessage)}
                             
-                            {isLoading && currentAiMessage === "" && (
+                            {isLoading && streamingMessage === "" && (
                                 <View style={styles.loadingContainer}>
                                     <ActivityIndicator size="small" color="#C7FF10" />
                                     <Text style={styles.loadingText}>MindSpark is thinking...</Text>
                                 </View>
                             )}
                             
-                            {currentAiMessage !== "" && (
+                            {streamingMessage !== "" && (
                                 <View>
                                     <Text style={styles.aiName}>MindSpark AI</Text>
-                                    <Text style={styles.aiText}>{currentAiMessage}</Text>
+                                    <Text style={styles.aiText}>
+                                        {streamingMessage}
+                                        <Text style={styles.cursor}>▊</Text>
+                                    </Text>
                                 </View>
                             )}
                         </ScrollView>
@@ -279,14 +347,15 @@ export default function ChatScreen() {
                                         placeholderTextColor="#888"
                                         style={styles.input}
                                         editable={!isLoading}
+                                        multiline
                                     />
                                     <TouchableOpacity 
                                         style={[styles.sendButton, isLoading && styles.sendButtonDisabled]} 
-                                        onPress={handleSend}
-                                        disabled={isLoading}
+                                        onPress={isLoading ? handleStopGeneration : handleSend}
+                                        disabled={!isLoading && !message.trim()}
                                     >
                                         {isLoading ? (
-                                            <Square width={16} height={16} />
+                                            <Ionicons name="stop" size={20} color="#000" />
                                         ) : (
                                             <Ionicons name="arrow-forward" size={20} color="#000" />
                                         )}
@@ -300,6 +369,7 @@ export default function ChatScreen() {
                                             isSearchActive && styles.actionButtonActive,
                                         ]}
                                         onPress={() => setIsSearchActive(prev => !prev)}
+                                        disabled={isLoading}
                                     >
                                         <Ionicons
                                             name="globe-outline"
@@ -315,6 +385,7 @@ export default function ChatScreen() {
                                             isDeepActive && styles.actionButtonActive,
                                         ]}
                                         onPress={() => setIsDeepActive(prev => !prev)}
+                                        disabled={isLoading}
                                     >
                                         <Ionicons
                                             name="bulb-outline"
@@ -412,11 +483,13 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         alignItems: "center",
         paddingHorizontal: 15,
-        height: 50,
+        minHeight: 50,
     },
     input: {
         flex: 1,
         color: "#fff",
+        paddingTop: 10,
+        paddingBottom: 10,
     },
     sendButton: {
         backgroundColor: "#FBF8EF",
@@ -469,5 +542,9 @@ const styles = StyleSheet.create({
     loadingText: {
         color: "#7C7C7C",
         fontSize: 14,
+    },
+    cursor: {
+        color: "#C7FF10",
+        opacity: 0.7,
     },
 });
