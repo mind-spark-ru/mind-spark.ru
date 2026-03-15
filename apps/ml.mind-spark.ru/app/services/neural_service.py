@@ -1,3 +1,5 @@
+import asyncio
+
 from llama_cpp import Llama
 
 from app.core.config import settings
@@ -22,7 +24,7 @@ class NeuralService:
             verbose=False,
         )
 
-    def chat(self, user_input: str) -> str:
+    async def chat(self, user_input: str) -> str:
         prompt = f"""
         {self.system_prompt}
 
@@ -43,7 +45,10 @@ class NeuralService:
             if output.get("choices"):
                 token = output["choices"][0]["text"]
                 if token:
-                    yield token
+                    yield f"data: {token}\n\n"
+                    await asyncio.sleep(0.01)
+        
+        yield f"data: [DONE]\n\n"
 
     def _clean_response(self, text: str) -> str:
         return text
