@@ -25,6 +25,7 @@ import Square from "../../assets/images/IconsChatScreen/Square.svg";
 import BottomNavigation from "../components/BottomNavigation";
 import { ML_URL } from "../../config";
 
+// Используем правильный endpoint /predict
 const PREDICT_URL = ML_URL + "/v1/ml/predict";
 const STORAGE_KEY = "@chat_messages";
 
@@ -45,6 +46,7 @@ export default function ChatScreen() {
     const translateY = useRef(new Animated.Value(0)).current;
     const headerOpacity = useRef(new Animated.Value(1)).current;
 
+    // Load messages from AsyncStorage
     useEffect(() => {
         loadMessages();
     }, []);
@@ -55,6 +57,7 @@ export default function ChatScreen() {
             if (stored) {
                 setMessages(JSON.parse(stored));
             } else {
+                // Welcome message if no history
                 setMessages([
                     {
                         id: "welcome",
@@ -126,10 +129,12 @@ export default function ChatScreen() {
         };
     }, [translateY, headerOpacity]);
 
+    // Auto-scroll when messages change or streaming message updates
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages, streamingMessage]);
 
+    // Cleanup function to abort fetch on unmount
     useEffect(() => {
         return () => {
             if (abortControllerRef.current) {
@@ -144,6 +149,7 @@ export default function ChatScreen() {
         const userMessageText = message.trim();
         setMessage("");
 
+        // Add user message
         const userMessage = {
             id: Date.now().toString(),
             type: "user",
@@ -155,23 +161,29 @@ export default function ChatScreen() {
         setMessages(updatedMessages);
         await saveMessages(updatedMessages);
 
+        // Start streaming AI response
         setIsLoading(true);
         setStreamingMessage("");
 
+        // Create abort controller for this request
         abortControllerRef.current = new AbortController();
 
         try {
             const response = await fetch(`${PREDICT_URL}?text=${encodeURIComponent(userMessageText)}`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     "Accept": "text/event-stream",
                 },
                 signal: abortControllerRef.current.signal,
             });
 
-            if (!response.ok) throw new Error("Network response was not ok");
-            if (!response.body) throw new Error("Response body is null");
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status}`);
+            }
+            
+            if (!response.body) {
+                throw new Error("Response body is null");
+            }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -182,35 +194,46 @@ export default function ChatScreen() {
                 const { done, value } = await reader.read();
                 
                 if (done) {
+                    console.log("Stream finished");
                     break;
                 }
 
-                buffer += decoder.decode(value, { stream: true });
+                // Декодируем чанк
+                const chunk = decoder.decode(value, { stream: true });
+                console.log("Raw chunk:", chunk);
                 
+                buffer += chunk;
+                
+                // Обрабатываем SSE сообщения (разделены \n\n)
                 const messages = buffer.split('\n\n');
                 buffer = messages.pop() || "";
 
                 for (const msg of messages) {
+                    if (!msg.trim()) continue;
+                    
+                    console.log("Processing message:", msg);
+                    
+                    // Ищем строки, начинающиеся с "data: "
                     const lines = msg.split('\n');
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
-                            const token = line.slice(6).trim();
+                            // Берем все после "data: "
+                            const token = line.substring(6);
                             
-                            if (token === '[DONE]') {
-                                continue;
-                            }
-                            
+                            // Добавляем токен к сообщению
                             if (token) {
                                 accumulatedMessage += token;
                                 setStreamingMessage(accumulatedMessage);
                                 
-                                await new Promise(resolve => setTimeout(resolve, 5));
+                                // Небольшая задержка для плавности
+                                await new Promise(resolve => setTimeout(resolve, 10));
                             }
                         }
                     }
                 }
             }
 
+            // Сохраняем полное сообщение
             if (accumulatedMessage) {
                 const aiMessage = {
                     id: (Date.now() + 1).toString(),
@@ -225,9 +248,12 @@ export default function ChatScreen() {
             }
             
         } catch (error) {
+            console.error("Fetch error:", error);
+            
             if (error.name === 'AbortError') {
                 console.log('Generation stopped by user');
                 
+                // Если пользователь остановил генерацию, сохраняем то, что уже накопилось
                 if (streamingMessage) {
                     const aiMessage = {
                         id: (Date.now() + 1).toString(),
@@ -240,7 +266,6 @@ export default function ChatScreen() {
                     await saveMessages(finalMessages);
                 }
             } else {
-                console.error("Failed to get AI response:", error);
                 const errorMessage = {
                     id: (Date.now() + 1).toString(),
                     type: "ai",
