@@ -158,23 +158,22 @@ export default function ChatScreen() {
             });
 
             if (!response.ok) throw new Error("Network response was not ok");
-
             const aiResponseText = await response.text();
-            
+
             const words = aiResponseText.split(' ');
             let accumulatedText = "";
-            
+
             const aiMessage = {
                 id: (Date.now() + 1).toString(),
                 type: "ai",
                 text: "",
                 timestamp: Date.now(),
             };
-            
+
             const initialMessages = [...updatedMessages, aiMessage];
             setMessages(initialMessages);
             await saveMessages(initialMessages);
-            
+
             for (let i = 0; i < words.length; i++) {
                 accumulatedText += (i === 0 ? "" : " ") + words[i];
                 
@@ -186,16 +185,22 @@ export default function ChatScreen() {
                 };
                 
                 setMessages(updatedMessagesList);
-                
                 setCurrentAiMessage(accumulatedText);
                 
                 await new Promise(resolve => setTimeout(resolve, 30));
             }
-            
+
+            // Сохраняем финальную версию сообщения (используем последний updatedMessagesList)
+            const finalMessagesList = [...initialMessages];
+            const lastMessageIndex = finalMessagesList.length - 1;
+            finalMessagesList[lastMessageIndex] = {
+                ...finalMessagesList[lastMessageIndex],
+                text: aiResponseText
+            };
+            await saveMessages(finalMessagesList);
+
+            // Очищаем currentAiMessage после сохранения
             setCurrentAiMessage("");
-            
-            await saveMessages([...updatedMessages, {...aiMessage, text: aiResponseText}]);
-            
         } catch (error) {
             console.error("Failed to get AI response:", error);
             const errorMessage = {
