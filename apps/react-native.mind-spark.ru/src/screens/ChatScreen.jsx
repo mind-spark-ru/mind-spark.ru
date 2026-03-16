@@ -141,16 +141,17 @@ export default function ChatScreen() {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setMessages(JSON.parse(stored));
+        const parsedMessages = JSON.parse(stored);
+        setMessages(parsedMessages);
       } else {
-        setMessages([
-          {
-            id: "welcome",
-            type: "ai",
-            text: "Hello! I'm MindSpark AI. How can I help you today?",
-            timestamp: Date.now(),
-          },
-        ]);
+        const welcomeMessage = {
+          id: "welcome",
+          type: "ai",
+          text: "Hello! I'm MindSpark AI. How can I help you today?",
+          timestamp: Date.now(),
+        };
+        setMessages([welcomeMessage]);
+        await saveMessages([welcomeMessage]);
       }
     } catch (error) {
       console.error("Failed to load messages:", error);
