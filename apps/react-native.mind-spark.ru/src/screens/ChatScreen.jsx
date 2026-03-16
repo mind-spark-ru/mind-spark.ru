@@ -158,48 +158,31 @@ export default function ChatScreen() {
             });
 
             if (!response.ok) throw new Error("Network response was not ok");
+
             const aiResponseText = await response.text();
 
             const words = aiResponseText.split(' ');
             let accumulatedText = "";
 
-            const aiMessage = {
-                id: (Date.now() + 1).toString(),
-                type: "ai",
-                text: "",
-                timestamp: Date.now(),
-            };
-
-            const initialMessages = [...updatedMessages, aiMessage];
-            setMessages(initialMessages);
-            await saveMessages(initialMessages);
-
             for (let i = 0; i < words.length; i++) {
                 accumulatedText += (i === 0 ? "" : " ") + words[i];
                 
-                const updatedMessagesList = [...initialMessages];
-                const lastMessageIndex = updatedMessagesList.length - 1;
-                updatedMessagesList[lastMessageIndex] = {
-                    ...updatedMessagesList[lastMessageIndex],
-                    text: accumulatedText
-                };
-                
-                setMessages(updatedMessagesList);
                 setCurrentAiMessage(accumulatedText);
                 
                 await new Promise(resolve => setTimeout(resolve, 30));
             }
 
-            // Сохраняем финальную версию сообщения (используем последний updatedMessagesList)
-            const finalMessagesList = [...initialMessages];
-            const lastMessageIndex = finalMessagesList.length - 1;
-            finalMessagesList[lastMessageIndex] = {
-                ...finalMessagesList[lastMessageIndex],
-                text: aiResponseText
+            const aiMessage = {
+                id: (Date.now() + 1).toString(),
+                type: "ai",
+                text: aiResponseText,
+                timestamp: Date.now(),
             };
-            await saveMessages(finalMessagesList);
 
-            // Очищаем currentAiMessage после сохранения
+            const finalMessages = [...updatedMessages, aiMessage];
+            setMessages(finalMessages);
+            await saveMessages(finalMessages);
+
             setCurrentAiMessage("");
         } catch (error) {
             console.error("Failed to get AI response:", error);
