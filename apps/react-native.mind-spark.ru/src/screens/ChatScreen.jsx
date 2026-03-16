@@ -25,7 +25,6 @@ import Square from "../../assets/images/IconsChatScreen/Square.svg";
 import BottomNavigation from "../components/BottomNavigation";
 import { ML_URL } from "../../config";
 
-// Используем правильный endpoint /predict
 const PREDICT_URL = ML_URL + "/v1/ml/predict";
 const STORAGE_KEY = "@chat_messages";
 
@@ -36,13 +35,12 @@ export default function ChatScreen() {
     const [message, setMessage] = useState("");
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [streamingMessage, setStreamingMessage] = useState("");
+    const [currentAiMessage, setCurrentAiMessage] = useState("");
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [isDeepActive, setIsDeepActive] = useState(false);
 
     const scrollViewRef = useRef(null);
-    const abortControllerRef = useRef(null);
     const translateY = useRef(new Animated.Value(0)).current;
     const headerOpacity = useRef(new Animated.Value(1)).current;
 
@@ -129,19 +127,10 @@ export default function ChatScreen() {
         };
     }, [translateY, headerOpacity]);
 
-    // Auto-scroll when messages change or streaming message updates
+    // Auto-scroll when messages change
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, [messages, streamingMessage]);
-
-    // Cleanup function to abort fetch on unmount
-    useEffect(() => {
-        return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-        };
-    }, []);
+    }, [messages, currentAiMessage]);
 
     const handleSend = async () => {
         if (!message.trim() || isLoading) return;
@@ -161,131 +150,103 @@ export default function ChatScreen() {
         setMessages(updatedMessages);
         await saveMessages(updatedMessages);
 
-        // Start streaming AI response
+        // Start AI response
         setIsLoading(true);
-        setStreamingMessage("");
-
-        // Create abort controller for this request
-        abortControllerRef.current = new AbortController();
+        setCurrentAiMessage("");
 
         try {
             const response = await fetch(`${PREDICT_URL}?text=${encodeURIComponent(userMessageText)}`, {
                 method: "POST",
                 headers: {
-                    "Accept": "text/event-stream",
+                    "Content-Type": "application/json",
                 },
-                signal: abortControllerRef.current.signal,
             });
 
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status}`);
-            }
-            
+            if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+
+            // Проверяем, поддерживается ли стриминг
             if (!response.body) {
-                throw new Error("Response body is null");
+                // Если нет стриминга, получаем обычный текст
+                const text = await response.text();
+                setCurrentAiMessage(text);
+                
+                const aiMessage = {
+                    id: (Date.now() + 1).toString(),
+                    type: "ai",
+                    text: text,
+                    timestamp: Date.now(),
+                };
+                
+                const finalMessages = [...updatedMessages, aiMessage];
+                setMessages(finalMessages);
+                await saveMessages(finalMessages);
+                setCurrentAiMessage("");
+                return;
             }
 
+            // Получаем reader для стриминга
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            let accumulatedMessage = "";
+            let aiResponseText = "";
             let buffer = "";
 
             while (true) {
                 const { done, value } = await reader.read();
-                
-                if (done) {
-                    console.log("Stream finished");
-                    break;
-                }
+                if (done) break;
 
-                // Декодируем чанк
-                const chunk = decoder.decode(value, { stream: true });
-                console.log("Raw chunk:", chunk);
+                // Декодируем чанк и добавляем в буфер
+                buffer += decoder.decode(value, { stream: true });
                 
-                buffer += chunk;
+                // Обрабатываем все полные сообщения в буфере
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || "";
                 
-                // Обрабатываем SSE сообщения (разделены \n\n)
-                const messages = buffer.split('\n\n');
-                buffer = messages.pop() || "";
-
-                for (const msg of messages) {
-                    if (!msg.trim()) continue;
-                    
-                    console.log("Processing message:", msg);
-                    
-                    // Ищем строки, начинающиеся с "data: "
-                    const lines = msg.split('\n');
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            // Берем все после "data: "
-                            const token = line.substring(6);
-                            
-                            // Добавляем токен к сообщению
-                            if (token) {
-                                accumulatedMessage += token;
-                                setStreamingMessage(accumulatedMessage);
-                                
-                                // Небольшая задержка для плавности
-                                await new Promise(resolve => setTimeout(resolve, 10));
-                            }
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('data: ')) {
+                        // Извлекаем токен (убираем префикс "data: ")
+                        const token = trimmedLine.slice(6);
+                        if (token) {
+                            aiResponseText += token;
+                            setCurrentAiMessage(aiResponseText);
+                            // Прокручиваем вниз при каждом обновлении
+                            scrollViewRef.current?.scrollToEnd({ animated: true });
                         }
+                    } else if (trimmedLine && !trimmedLine.startsWith(':')) {
+                        // На всякий случай обрабатываем строки без префикса data:
+                        aiResponseText += trimmedLine;
+                        setCurrentAiMessage(aiResponseText);
+                        scrollViewRef.current?.scrollToEnd({ animated: true });
                     }
                 }
             }
 
-            // Сохраняем полное сообщение
-            if (accumulatedMessage) {
-                const aiMessage = {
-                    id: (Date.now() + 1).toString(),
-                    type: "ai",
-                    text: accumulatedMessage,
-                    timestamp: Date.now(),
-                };
+            // Сохраняем полное сообщение в историю
+            const aiMessage = {
+                id: (Date.now() + 1).toString(),
+                type: "ai",
+                text: aiResponseText,
+                timestamp: Date.now(),
+            };
 
-                const finalMessages = [...updatedMessages, aiMessage];
-                setMessages(finalMessages);
-                await saveMessages(finalMessages);
-            }
+            const finalMessages = [...updatedMessages, aiMessage];
+            setMessages(finalMessages);
+            await saveMessages(finalMessages);
+            setCurrentAiMessage("");
             
         } catch (error) {
-            console.error("Fetch error:", error);
-            
-            if (error.name === 'AbortError') {
-                console.log('Generation stopped by user');
-                
-                // Если пользователь остановил генерацию, сохраняем то, что уже накопилось
-                if (streamingMessage) {
-                    const aiMessage = {
-                        id: (Date.now() + 1).toString(),
-                        type: "ai",
-                        text: streamingMessage + "... (stopped)",
-                        timestamp: Date.now(),
-                    };
-                    const finalMessages = [...updatedMessages, aiMessage];
-                    setMessages(finalMessages);
-                    await saveMessages(finalMessages);
-                }
-            } else {
-                const errorMessage = {
-                    id: (Date.now() + 1).toString(),
-                    type: "ai",
-                    text: "Sorry, I'm having trouble connecting. Please try again.",
-                    timestamp: Date.now(),
-                };
-                const finalMessages = [...updatedMessages, errorMessage];
-                setMessages(finalMessages);
-                await saveMessages(finalMessages);
-            }
+            console.error("Failed to get AI response:", error);
+            const errorMessage = {
+                id: (Date.now() + 1).toString(),
+                type: "ai",
+                text: `Sorry, I'm having trouble connecting. Error: ${error.message}`,
+                timestamp: Date.now(),
+            };
+            const finalMessages = [...updatedMessages, errorMessage];
+            setMessages(finalMessages);
+            await saveMessages(finalMessages);
         } finally {
             setIsLoading(false);
-            setStreamingMessage("");
-            abortControllerRef.current = null;
-        }
-    };
-
-    const handleStopGeneration = () => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
         }
     };
 
@@ -344,20 +305,17 @@ export default function ChatScreen() {
                         >
                             {messages.map(renderMessage)}
                             
-                            {isLoading && streamingMessage === "" && (
+                            {isLoading && currentAiMessage === "" && (
                                 <View style={styles.loadingContainer}>
                                     <ActivityIndicator size="small" color="#C7FF10" />
                                     <Text style={styles.loadingText}>MindSpark is thinking...</Text>
                                 </View>
                             )}
                             
-                            {streamingMessage !== "" && (
+                            {currentAiMessage !== "" && (
                                 <View>
                                     <Text style={styles.aiName}>MindSpark AI</Text>
-                                    <Text style={styles.aiText}>
-                                        {streamingMessage}
-                                        <Text style={styles.cursor}>▊</Text>
-                                    </Text>
+                                    <Text style={styles.aiText}>{currentAiMessage}</Text>
                                 </View>
                             )}
                         </ScrollView>
@@ -372,15 +330,14 @@ export default function ChatScreen() {
                                         placeholderTextColor="#888"
                                         style={styles.input}
                                         editable={!isLoading}
-                                        multiline
                                     />
                                     <TouchableOpacity 
                                         style={[styles.sendButton, isLoading && styles.sendButtonDisabled]} 
-                                        onPress={isLoading ? handleStopGeneration : handleSend}
-                                        disabled={!isLoading && !message.trim()}
+                                        onPress={handleSend}
+                                        disabled={isLoading}
                                     >
                                         {isLoading ? (
-                                            <Ionicons name="stop" size={20} color="#000" />
+                                            <Square width={16} height={16} />
                                         ) : (
                                             <Ionicons name="arrow-forward" size={20} color="#000" />
                                         )}
@@ -394,7 +351,6 @@ export default function ChatScreen() {
                                             isSearchActive && styles.actionButtonActive,
                                         ]}
                                         onPress={() => setIsSearchActive(prev => !prev)}
-                                        disabled={isLoading}
                                     >
                                         <Ionicons
                                             name="globe-outline"
@@ -410,7 +366,6 @@ export default function ChatScreen() {
                                             isDeepActive && styles.actionButtonActive,
                                         ]}
                                         onPress={() => setIsDeepActive(prev => !prev)}
-                                        disabled={isLoading}
                                     >
                                         <Ionicons
                                             name="bulb-outline"
@@ -508,13 +463,11 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         alignItems: "center",
         paddingHorizontal: 15,
-        minHeight: 50,
+        height: 50,
     },
     input: {
         flex: 1,
         color: "#fff",
-        paddingTop: 10,
-        paddingBottom: 10,
     },
     sendButton: {
         backgroundColor: "#FBF8EF",
@@ -567,9 +520,5 @@ const styles = StyleSheet.create({
     loadingText: {
         color: "#7C7C7C",
         fontSize: 14,
-    },
-    cursor: {
-        color: "#C7FF10",
-        opacity: 0.7,
     },
 });
