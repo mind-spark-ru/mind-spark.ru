@@ -224,6 +224,7 @@ export default function ChatScreen() {
       const finalMessages = [...updatedMessages, aiMessage];
       setMessages(finalMessages);
       await saveMessages(finalMessages);
+      setCurrentAiMessage("");
     } catch (error) {
       console.error("Failed to get AI response:", error);
 
