@@ -34,7 +34,6 @@ const ANIMATION_DURATION = 250;
 export default function ChatScreen() {
   const { fontsLoaded } = useAppFonts();
 
-  // State
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -43,13 +42,11 @@ export default function ChatScreen() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isDeepActive, setIsDeepActive] = useState(false);
 
-  // Refs
   const scrollViewRef = useRef(null);
   const translateY = useRef(new Animated.Value(0)).current;
   const headerOpacity = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Effects
   useEffect(() => {
     loadMessages();
   }, []);
@@ -92,7 +89,6 @@ export default function ChatScreen() {
     scrollToEnd();
   }, [messages, currentAiMessage]);
 
-  // Handlers
   const handleKeyboardShow = (event) => {
     const height = event.endCoordinates.height;
     setKeyboardHeight(height);
@@ -136,7 +132,6 @@ export default function ChatScreen() {
     scrollViewRef.current?.scrollToEnd({ animated });
   };
 
-  // Message handlers
   const loadMessages = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -151,7 +146,6 @@ export default function ChatScreen() {
           timestamp: Date.now(),
         };
         setMessages([welcomeMessage]);
-        await saveMessages([welcomeMessage]);
       }
     } catch (error) {
       console.error("Failed to load messages:", error);
@@ -225,6 +219,7 @@ export default function ChatScreen() {
       const finalMessages = [...updatedMessages, aiMessage];
       setMessages(finalMessages);
       await saveMessages(finalMessages);
+      
       setCurrentAiMessage("");
     } catch (error) {
       console.error("Failed to get AI response:", error);
@@ -239,16 +234,15 @@ export default function ChatScreen() {
       const finalMessages = [...updatedMessages, errorMessage];
       setMessages(finalMessages);
       await saveMessages(finalMessages);
+      setCurrentAiMessage("");
     } finally {
       setIsLoading(false);
-      setCurrentAiMessage("");
     }
   };
 
   const toggleSearch = () => setIsSearchActive((prev) => !prev);
   const toggleDeep = () => setIsDeepActive((prev) => !prev);
 
-  // Render helpers
   const renderMessage = (msg) => {
     if (msg.type === "user") {
       return (
@@ -299,13 +293,11 @@ export default function ChatScreen() {
     >
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.container}>
-          {/* Header */}
           <Animated.View style={[styles.headerRow, { opacity: headerOpacity }]}>
             <Text style={styles.header}>MindSpark AI</Text>
             <Magic1 width={20} height={20} style={styles.spark} />
           </Animated.View>
 
-          {/* Content */}
           <Animated.View
             style={[
               styles.contentWrapper,
@@ -322,10 +314,9 @@ export default function ChatScreen() {
               {messages.map(renderMessage)}
 
               {isLoading && !currentAiMessage && renderLoadingIndicator()}
-              {currentAiMessage !== "" && renderTypingMessage()}
+              {currentAiMessage !== "" && !messages.some(m => m.text === currentAiMessage) && renderTypingMessage()}
             </ScrollView>
 
-            {/* Input Section */}
             <View style={styles.inputContainer}>
               <View style={styles.chatBottomPanel}>
                 <View style={styles.inputWrapper}>
