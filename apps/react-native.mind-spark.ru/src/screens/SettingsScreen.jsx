@@ -39,7 +39,7 @@ function SettingsRow({ title, Icon, onPress, style }) {
 
 export default function SettingsScreen({ navigation }) {
   const handleLogout = async () => {
-    await AsyncStorage.multiRemove(["auth_token", "user_email"]);
+    await AsyncStorage.multiRemove(["auth_token", "user_email", "@chat_messages"]);
     navigation.reset({
       index: 0,
       routes: [{ name: "Main" }],
