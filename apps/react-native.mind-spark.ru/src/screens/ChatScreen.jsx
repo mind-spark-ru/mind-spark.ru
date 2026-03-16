@@ -44,7 +44,6 @@ export default function ChatScreen() {
     const translateY = useRef(new Animated.Value(0)).current;
     const headerOpacity = useRef(new Animated.Value(1)).current;
 
-    // Load messages from AsyncStorage
     useEffect(() => {
         loadMessages();
     }, []);
@@ -55,7 +54,6 @@ export default function ChatScreen() {
             if (stored) {
                 setMessages(JSON.parse(stored));
             } else {
-                // Welcome message if no history
                 setMessages([
                     {
                         id: "welcome",
@@ -127,7 +125,6 @@ export default function ChatScreen() {
         };
     }, [translateY, headerOpacity]);
 
-    // Auto-scroll when messages change
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages, currentAiMessage]);
@@ -138,7 +135,6 @@ export default function ChatScreen() {
         const userMessageText = message.trim();
         setMessage("");
 
-        // Add user message
         const userMessage = {
             id: Date.now().toString(),
             type: "user",
@@ -150,7 +146,6 @@ export default function ChatScreen() {
         setMessages(updatedMessages);
         await saveMessages(updatedMessages);
 
-        // Start AI response
         setIsLoading(true);
         setCurrentAiMessage("");
 
@@ -162,66 +157,11 @@ export default function ChatScreen() {
                 },
             });
 
-            if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+            if (!response.ok) throw new Error("Network response was not ok");
 
-            // Проверяем, поддерживается ли стриминг
-            if (!response.body) {
-                // Если нет стриминга, получаем обычный текст
-                const text = await response.text();
-                setCurrentAiMessage(text);
-                
-                const aiMessage = {
-                    id: (Date.now() + 1).toString(),
-                    type: "ai",
-                    text: text,
-                    timestamp: Date.now(),
-                };
-                
-                const finalMessages = [...updatedMessages, aiMessage];
-                setMessages(finalMessages);
-                await saveMessages(finalMessages);
-                setCurrentAiMessage("");
-                return;
-            }
-
-            // Получаем reader для стриминга
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let aiResponseText = "";
-            let buffer = "";
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                // Декодируем чанк и добавляем в буфер
-                buffer += decoder.decode(value, { stream: true });
-                
-                // Обрабатываем все полные сообщения в буфере
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || "";
-                
-                for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine.startsWith('data: ')) {
-                        // Извлекаем токен (убираем префикс "data: ")
-                        const token = trimmedLine.slice(6);
-                        if (token) {
-                            aiResponseText += token;
-                            setCurrentAiMessage(aiResponseText);
-                            // Прокручиваем вниз при каждом обновлении
-                            scrollViewRef.current?.scrollToEnd({ animated: true });
-                        }
-                    } else if (trimmedLine && !trimmedLine.startsWith(':')) {
-                        // На всякий случай обрабатываем строки без префикса data:
-                        aiResponseText += trimmedLine;
-                        setCurrentAiMessage(aiResponseText);
-                        scrollViewRef.current?.scrollToEnd({ animated: true });
-                    }
-                }
-            }
-
-            // Сохраняем полное сообщение в историю
+            const aiResponseText = await response.text();
+            setCurrentAiMessage(aiResponseText);
+            
             const aiMessage = {
                 id: (Date.now() + 1).toString(),
                 type: "ai",
@@ -239,7 +179,7 @@ export default function ChatScreen() {
             const errorMessage = {
                 id: (Date.now() + 1).toString(),
                 type: "ai",
-                text: `Sorry, I'm having trouble connecting. Error: ${error.message}`,
+                text: "Sorry, I'm having trouble connecting. Please try again.",
                 timestamp: Date.now(),
             };
             const finalMessages = [...updatedMessages, errorMessage];
