@@ -1,4 +1,4 @@
-![MindSpark](docs/images/logo.jpg)
+<img src="docs/images/logo.jpg" alt="Лого MindSpark" width="800"/>
 <!-- TODO: замените заглушки на реальные скриншоты/гифки веба и мобильного приложения -->
 
 # MindSpark
@@ -157,10 +157,9 @@ SKIP_MODEL_LOAD=false   # true — пропустить загрузку при 
 - `POST /v1/chats/`, `GET /v1/chats/` — заготовки под историю чатов.
 
 ## Медиа-плейсхолдеры
-<img src="docs/images/main_screen.png" alt="Лого MindSpark" width="300"/>
-<img src="docs/images/dashboard.png" alt="Дашборд" width="300"/>
-<img src="docs/images/video.gif" alt="GIF чата" width="300"/>
-<img src="docs/images/video2.gif" alt="GIF приложения" width="300"/>
+<img src="docs/images/main_screen.png" alt="Лого MindSpark" width="300"/><img src="docs/images/dashboard.png" alt="Дашборд" width="300"/>
+
+<img src="docs/images/video.gif" alt="GIF чата" width="300"/><img src="docs/images/video2.gif" alt="GIF приложения" width="300"/>
 
 ## Roadmap (набросок)
 - Интеграция браслета (биометрия stress/HRV/SpO2) в API/дашборды.
