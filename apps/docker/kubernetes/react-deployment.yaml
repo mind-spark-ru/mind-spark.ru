@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yaml -o kubernetes/
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: react
+  name: react
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: react
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yaml -o kubernetes/
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: react
+    spec:
+      containers:
+        - image: react
+          name: mindspark-react
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /app/src
+              name: react-cm0
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: react-cm0
+          name: react-cm0

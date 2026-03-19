@@ -1,0 +1,33 @@
+apiVersion: v1
+data:
+  App.js: |
+    import React from "react";
+    import MainRouter from "./components/Routers/MainRouter";
+
+    function App() {
+      return <MainRouter />;
+    }
+
+    export default App;
+  config.js: |-
+    const host = window.location.hostname;
+    export const API_URL = `http://mind-spark.ru/api`;
+    export const REACT_URL = `http://mind-spark.ru`;
+    export const API_URL_dev = `http://${host}:8000`;
+    export const REACT_URL_dev = `http://${host}:3000`;
+  index.css: "html, body, #root {\n  margin: 0;\n  padding: 0;\n  height: 100%;\n  background-color: #141414;\n}\n\nbody {\n  overscroll-behavior: none; \n}\n\n"
+  index.js: |+
+    import React from 'react';
+    import ReactDOM from 'react-dom/client';
+    import App from './App';
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+        <App />
+    );
+
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: react
+  name: react-cm0

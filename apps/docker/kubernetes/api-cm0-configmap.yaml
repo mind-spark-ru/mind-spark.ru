@@ -1,0 +1,54 @@
+apiVersion: v1
+data:
+  __init__.py: ""
+  main.py: |
+    from contextlib import asynccontextmanager
+
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+
+    from app.api import router
+    from app.core.redis import redis_client
+    from app.db.session import Base, engine
+
+
+    @asynccontextmanager
+    async def lifespan(app=FastAPI):
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        await redis_client.connect()
+        yield
+        await engine.dispose()
+        await redis_client.disconnect()
+
+
+    app = FastAPI(title="api.mind-spark.ru", version="1.0.0", lifespan=lifespan)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "*"
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    app.include_router(router)
+
+    if __name__ == "__main__":
+        import uvicorn
+
+        uvicorn.run(
+            "app.main:app",
+            host="0.0.0.0",
+            port=8000,
+            reload=True,
+            ssl_keyfile=None,
+            ssl_certfile=None,
+        )
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: api
+  name: api-cm0
