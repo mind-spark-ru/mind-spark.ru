@@ -167,7 +167,7 @@ SKIP_MODEL_LOAD=false   # true — пропустить загрузку при 
 - Экран «Кабинет статистики» с корреляциями сна/стресса/продуктивности.
 - Платёжная модель: подписка/premium.
 - Контейнерные образы + Compose/Helm в репозитории; CI/CD пайплайн на staging/prod.
-- Edge-слой: Nginx/ingress с mTLS, HTTP/3, CDN, rate-limit, WAF; сервис-меш и трассировка (OpenTelemetry, Tempo/Jaeger) для прод-наблюдаемости; gRPC/GraphQL шлюз для будущих микросервисов и нагрузочного автоскейла.
+- Edge-слой: Nginx/ingress с mTLS, HTTP/3, CDN, rate-limit, WAF; сервис-меш, трассировка (OpenTelemetry, Tempo/Jaeger) для прод-наблюдаемости; gRPC/GraphQL шлюз для будущих микросервисов и нагрузочного автоскейла.
 
 ---
 Coaching-first, privacy-first.
